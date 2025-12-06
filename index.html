@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>dual-Infodose Chat Cinematográfico · Ref V3.1</title>
+
+  <!-- Fonte básica -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" />
+
+  <style>
+    :root {
+      --bg: radial-gradient(circle at 20% 20%, #121926, #050811 60%, #000000 100%);
+      --text: #e4ecff;
+      --accent: #00f5ff;
+      --accent-soft: rgba(0, 245, 255, .18);
+      --accent-pink: #ff4bff;
+      --danger: #ff4b6b;
+      --radius-card: 18px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 40px rgba(0,0,0,.65);
+      --fast: .25s;
+      --med: .6s;
+      --slow: 1.4s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 16px 16px 24px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Fundo particulado simples */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(0,255,255,.16) 0, transparent 50%),
+        radial-gradient(circle at 90% 100%, rgba(255,0,255,.12) 0, transparent 60%);
+      opacity: .7;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    #particles-js {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .5;
+    }
+
+    /* Logo / orb central */
+    .svg-container {
+      position: relative;
+      margin-top: 40px;
+      width: 140px;
+      height: 140px;
+      filter: drop-shadow(0 0 25px rgba(0,255,255,.35));
+      animation: orbFloat 12s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    .svg-container svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-8px) scale(1.03); }
+    }
+
+    #assistantName {
+      margin-top: 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-align: center;
+      opacity: .9;
+      z-index: 1;
+    }
+
+    /* Container de resposta (cinematográfico) */
+    .response-container {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 160px;
+      max-height: calc(100vh - 260px);
+      padding: 12px;
+      border-radius: 20px;
+      background: radial-gradient(circle at 0 0, rgba(0,255,255,.14), rgba(0,0,0,.86));
+      backdrop-filter: blur(14px) saturate(160%);
+      box-shadow: var(--shadow-soft);
+      overflow-y: auto;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      animation: fadeInUp var(--slow) ease forwards;
+      transition: all var(--fast) ease;
+    }
+
+    /* ESTADO COLAPSADO: só o footer visível como pílula de menu */
+    .response-container.collapsed {
+      bottom: 24px;
+      max-height: none;
+      padding: 6px 10px;
+      background: radial-gradient(circle at 0 0, rgba(0,255,255,.22), rgba(0,0,0,.95));
+    }
+    .response-container.collapsed .pages-wrapper,
+    .response-container.collapsed .response-controls,
+    .response-container.collapsed #iaConfigPanel {
+      display: none;
+    }
+    .response-container.collapsed .footer-text {
+      margin-top: 0;
+      font-size: .78rem;
+      border-radius: 999px;
+    }
+    /* Esconde o input quando colapsado (irmão direto) */
+    .response-container.collapsed + .input-container {
+      display: none;
+    }
+
+    .pages-wrapper {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .page {
+      display: none;
+      opacity: 0;
+      transition: opacity var(--med) ease;
+    }
+
+    .page.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .page.initial {
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    #bootText {
+      font-weight: 700;
+      position: relative;
+      letter-spacing: .03em;
+    }
+
+    #bootText.pulse::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(42deg, #0ff, #f0f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: blur(4px);
+      opacity: .45;
+      pointer-events: none;
+      animation: pulseGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseGlow {
+      0%,100% { opacity: 0.4; }
+      50%     { opacity: 0.9; }
+    }
+
+    .response-block {
+      margin: .35rem 0;
+      padding: 1rem 1.1rem;
+      border-radius: 14px;
+      line-height: 1.7;
+      font-size: .9rem;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.04);
+      transition: box-shadow var(--fast), transform var(--fast), border-color var(--fast), background var(--fast);
+      cursor: default;
+    }
+
+    .response-block:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.7);
+      border-color: rgba(0,255,255,.3);
+    }
+
+    .response-block.intro {
+      background: linear-gradient(135deg, rgba(0,255,255,.18), rgba(0,40,70,.9));
+    }
+
+    .response-block.middle {
+      background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(6,10,28,.95));
+    }
+
+    .response-block.ending {
+      background: linear-gradient(135deg, rgba(255,0,255,.18), rgba(40,0,60,.95));
+    }
+
+    .response-block strong {
+      color: var(--accent);
+    }
+
+    .response-block h1,
+    .response-block h2,
+    .response-block h3 {
+      margin-bottom: .2rem;
+    }
+
+    .response-block h3 {
+      font-size: .95rem;
+    }
+
+    .response-block code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .8rem;
+      padding: .15rem .32rem;
+      border-radius: 6px;
+      background: rgba(0,0,0,.5);
+    }
+
+    .response-block pre {
+      max-width: 100%;
+      overflow-x: auto;
+      padding: .6rem .7rem;
+      background: rgba(0,0,0,.55);
+      border-radius: 8px;
+      font-size: .78rem;
+      margin-top: .4rem;
+    }
+
+    .footer-text {
+      margin-top: 6px;
+      padding: 6px 10px;
+      font-size: .78rem;
+      text-align: center;
+      opacity: .8;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.65);
+      cursor: pointer;
+      transition: opacity var(--fast), transform var(--fast), box-shadow var(--fast), background var(--fast);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .footer-text span.footer-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: linear-gradient(45deg,#0ff,#f0f);
+      box-shadow: 0 0 12px rgba(0,255,255,.7);
+    }
+
+    .footer-text:hover {
+      opacity: .95;
+      transform: scale(1.02);
+      box-shadow: 0 0 18px rgba(0,255,255,.35);
+      background: rgba(0,0,0,.9);
+    }
+
+    .response-controls {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .control-buttons,
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--fast), transform var(--fast), opacity var(--fast);
+      opacity: .8;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255,255,255,.12);
+      transform: translateY(-1px);
+      opacity: 1;
+    }
+
+    .icon-btn svg {
+      width: 70%;
+      height: 70%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+    }
+
+    .pagination button {
+      border: none;
+      background: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: linear-gradient(45deg, #0ff, #f0f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: transform var(--fast), opacity var(--fast);
+      opacity: .8;
+    }
+
+    .pagination button:hover {
+      transform: scale(1.15);
+      opacity: 1;
+    }
+
+    #pageIndicator {
+      font-size: .8rem;
+      opacity: .8;
+    }
+
+    /* Painel de Config da IA (OpenRouter) - dentro do container */
+    #iaConfigPanel {
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 16px;
+      background: rgba(0, 8, 20, .96);
+      border: 1px solid rgba(0,255,255,.24);
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      color: var(--text);
+      font-size: .78rem;
+      display: none; /* controlado por classe .active */
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #iaConfigPanel.active {
+      display: flex;
+    }
+
+    #iaConfigHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    #iaConfigHeader span {
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      opacity: .9;
+    }
+
+    .ia-config-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .ia-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .ia-field label {
+      font-size: .72rem;
+      opacity: .8;
+    }
+
+    .ia-field input,
+    .ia-field select {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid rgba(0,255,255,.3);
+      background: rgba(0,0,0,.7);
+      color: inherit;
+      padding: 5px 7px;
+      font-size: .78rem;
+      outline: none;
+    }
+
+    .ia-field input::placeholder {
+      color: rgba(255,255,255,.38);
+    }
+
+    .ia-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .pill-btn {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(0,255,255,.6);
+      background: transparent;
+      padding: 5px 0;
+      font-size: .78rem;
+      cursor: pointer;
+      color: var(--accent);
+      transition: background var(--fast), color var(--fast), transform var(--fast);
+    }
+
+    .pill-btn:hover {
+      background: var(--accent);
+      color: #050515;
+      transform: translateY(-1px);
+    }
+
+    .pill-btn.secondary {
+      border-color: rgba(255,255,255,.35);
+      color: rgba(255,255,255,.8);
+    }
+
+    .pill-btn.secondary:hover {
+      background: rgba(255,255,255,.12);
+      color: #fff;
+    }
+
+    .ia-status {
+      font-size: .7rem;
+      opacity: .8;
+      margin-top: 2px;
+    }
+
+    .ia-status.ok {
+      color: #63f8ba;
+    }
+
+    .ia-status.warn {
+      color: #ffd480;
+    }
+
+    .ia-status.err {
+      color: var(--danger);
+    }
+
+    .ia-help summary {
+      cursor: pointer;
+      opacity: .9;
+    }
+
+    .ia-help p {
+      margin-top: 4px;
+    }
+
+    /* Painel Livro Vivo (fora do container, tipo modal leve) */
+    .lv-panel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 340px;
+      max-width: 92vw;
+      max-height: 80vh;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 0 0, rgba(0,255,255,.2), rgba(0,0,0,.96));
+      border-radius: 18px;
+      padding: 14px 14px 10px;
+      border: 1px solid rgba(0,255,255,.34);
+      box-shadow: 0 20px 50px rgba(0,0,0,.9);
+      z-index: 30;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      backdrop-filter: blur(22px) saturate(180%);
+    }
+
+    .lv-panel.active {
+      display: flex;
+    }
+
+    .lv-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .lv-title {
+      font-size: .88rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      opacity: .92;
+    }
+
+    .lv-close {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.4);
+      background: rgba(0,0,0,.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: .8rem;
+    }
+
+    .lv-body {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: .78rem;
+    }
+
+    .lv-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .lv-field label {
+      font-size: .74rem;
+      opacity: .85;
+    }
+
+    #livroVivoInput {
+      width: 100%;
+      min-height: 80px;
+      max-height: 140px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,255,255,.3);
+      background: rgba(0,0,0,.65);
+      color: inherit;
+      padding: 6px 8px;
+      font-size: .8rem;
+      resize: vertical;
+      outline: none;
+    }
+
+    #livroVivoInput::placeholder {
+      color: rgba(255,255,255,.45);
+    }
+
+    #lvVoiceSelect {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(0,0,0,.65);
+      color: inherit;
+      padding: 5px 9px;
+      font-size: .78rem;
+      outline: none;
+    }
+
+    .lv-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .lv-actions .pill-btn {
+      font-size: .76rem;
+      padding: 5px 0;
+    }
+
+    #lvPlayBtn {
+      border-color: rgba(255,255,255,.6);
+      color: rgba(255,255,255,.92);
+    }
+
+    #lvPlayBtn:hover {
+      background: rgba(255,255,255,.14);
+      color: #fff;
+    }
+
+    #livroVivoSlot {
+      margin-top: 4px;
+      padding: 8px 9px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,255,255,.16);
+      background: rgba(1,6,18,.98);
+      max-height: 160px;
+      overflow-y: auto;
+      font-size: .8rem;
+      line-height: 1.6;
+    }
+
+    #livroVivoSlot h1,
+    #livroVivoSlot h2,
+    #livroVivoSlot h3 {
+      font-size: .9rem;
+      margin: 4px 0 2px;
+    }
+
+    #livroVivoSlot p {
+      margin-bottom: 4px;
+    }
+
+    #livroVivoSlot ul {
+      padding-left: 18px;
+      margin: 4px 0;
+    }
+
+    #livroVivoSlot li {
+      margin-bottom: 2px;
+    }
+
+    .lv-callout {
+      border-radius: 12px;
+      padding: 6px 8px;
+      margin: 4px 0;
+      font-size: .78rem;
+    }
+    .lv-callout.info {
+      border:1px solid rgba(0,255,255,.45);
+      background: rgba(0,255,255,.06);
+    }
+    .lv-callout.warn {
+      border:1px solid rgba(255,200,0,.6);
+      background: rgba(255,200,0,.06);
+    }
+    .lv-callout.success {
+      border:1px solid rgba(0,255,160,.6);
+      background: rgba(0,255,160,.06);
+    }
+    .lv-callout.question {
+      border:1px solid rgba(180,140,255,.7);
+      background: rgba(180,140,255,.06);
+    }
+    .lv-callout.aside {
+      border:1px dashed rgba(255,255,255,.4);
+      background: rgba(255,255,255,.03);
+    }
+
+    /* Input container */
+    .input-container {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 84px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      z-index: 2;
+      transition: opacity var(--fast) ease, transform var(--fast) ease;
+    }
+
+    #userInput {
+      flex: 1;
+      min-width: 0;
+      padding: 11px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.7);
+      color: inherit;
+      font-size: .95rem;
+      outline: none;
+      transition: border-color var(--fast), background var(--fast), box-shadow var(--fast);
+    }
+
+    #userInput::placeholder {
+      color: rgba(255,255,255,.35);
+    }
+
+    #userInput:focus {
+      border-color: rgba(0,255,255,.65);
+      background: rgba(0,0,0,.9);
+      box-shadow: 0 0 0 1px rgba(0,255,255,.45);
+    }
+
+    #sendBtn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      background: conic-gradient(from 120deg, #0ff, #f0f, #0ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: #050515;
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(0,255,255,.55);
+      transition: transform var(--fast), box-shadow var(--fast);
+    }
+
+    #sendBtn:hover {
+      transform: translateY(-1px) scale(1.04);
+      box-shadow: 0 0 26px rgba(0,255,255,.8);
+    }
+
+    #voiceBtn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.08);
+      transition: transform var(--fast), box-shadow var(--fast), background var(--fast);
+    }
+
+    #voiceBtn svg {
+      width: 70%;
+      height: 70%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+    }
+
+    #voiceBtn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(0,255,255,.45);
+      background: rgba(0,0,0,.95);
+    }
+
+    #voiceBtn.recording {
+      box-shadow: 0 0 22px rgba(0,255,180,.8);
+      background: radial-gradient(circle at 30% 0, rgba(0,255,180,.7), rgba(0,0,0,.9));
+    }
+
+    /* Login / ativação */
+    .login-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      max-width: 88vw;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 0 0, rgba(0,255,255,.2), rgba(0,0,0,.9));
+      border-radius: 18px;
+      padding: 16px 14px 14px;
+      border: 1px solid rgba(0,255,255,.3);
+      backdrop-filter: blur(18px) saturate(180%);
+      box-shadow: var(--shadow-soft);
+      z-index: 20;
+      display: none;
+      animation: fadeInUp .4s ease;
+    }
+
+    .login-container.active {
+      display: block;
+    }
+
+    .login-container h2 {
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .login-container p {
+      font-size: .8rem;
+      opacity: .8;
+      margin-bottom: 10px;
+    }
+
+    .login-container input {
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 7px 2px;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,.35);
+      background: transparent;
+      color: inherit;
+      font-size: .9rem;
+      outline: none;
+    }
+
+    .login-container input::placeholder {
+      color: rgba(255,255,255,.45);
+    }
+
+    .login-container button[type="submit"] {
+      margin-top: 8px;
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      padding: 8px 0;
+      font-size: .9rem;
+      cursor: pointer;
+      transition: background var(--fast), color var(--fast), transform var(--fast);
+    }
+
+    .login-container button[type="submit"]:hover {
+      background: var(--accent);
+      color: #050515;
+      transform: translateY(-1px);
+    }
+
+    /* Botão flutuante de theme (opcional) */
+    #themeToggle {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.4);
+      background: radial-gradient(circle at 0 0, rgba(255,255,255,.4), transparent 60%);
+      cursor: pointer;
+      opacity: .7;
+      z-index: 10;
+      transition: opacity var(--fast), transform var(--fast), box-shadow var(--fast);
+    }
+
+    #themeToggle:hover {
+      opacity: 1;
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(255,255,255,.7);
+    }
+
+    /* Scroll */
+    .response-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .response-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .response-container::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,.35);
+      border-radius: 999px;
+    }
+
+    /* Responsivo */
+    @media (min-width: 768px) {
+      body {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+    }
+
+  </style>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('serviceworker.sw.js')
+        .then(() => console.log('✔️ Service Worker registrado'))
+        .catch(err => console.error('❌ Service Worker falhou:', err));
+    }
+  </script>
+</head>
+<body>
+
+  <!-- SPRITE SVG (símbolos globais) -->
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;">
+    <symbol id="icon-copy" viewBox="0 0 24 24">
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <rect x="4" y="4" width="11" height="11" rx="2" />
+    </symbol>
+    <symbol id="icon-paste" viewBox="0 0 24 24">
+      <path d="M9 4h6l1 2h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1z"/>
+      <rect x="9" y="2" width="6" height="3" rx="1.2"/>
+    </symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24">
+      <circle cx="12" cy="9" r="3.2"/>
+      <path d="M6 18a6 6 0 0 1 12 0" />
+    </symbol>
+    <symbol id="icon-mic" viewBox="0 0 24 24">
+      <rect x="9" y="5" width="6" height="9" rx="3"/>
+      <path d="M5 11a7 7 0 0 0 14 0" />
+      <path d="M12 18v3" />
+    </symbol>
+    <symbol id="icon-orb" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="4" />
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24">
+      <path d="M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" />
+      <path d="M4.9 8.6a1 1 0 0 1 .3-1.4l1.2-.7a1 1 0 0 0 .5-.8l.2-1.4A1 1 0 0 1 8.1 3h1.8a1 1 0 0 1 1 .7l.3 1.4a1 1 0 0 0 .6.7l1.3.7a1 1 0 0 0 1.1-.1l1.1-.8a1 1 0 0 1 1.4.3l.9 1.6a1 1 0 0 1-.1 1.1l-.9 1.1a1 1 0 0 0-.2.8l.2 1.5a1 1 0 0 1-.8 1.1l-1.4.2a1 1 0 0 0-.7.5l-.6 1.3a1 1 0 0 1-1 .6h-1.8a1 1 0 0 1-1-.6l-.6-1.3a1 1 0 0 0-.7-.5l-1.4-.2a1 1 0 0 1-.8-1.1l.2-1.5a1 1 0 0 0-.2-.8L4.9 8.6z"/>
+    </symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24">
+      <path d="M6 4h9a2 2 0 0 1 2 2v11.5a.5.5 0 0 1-.76.42L12 15.5l-4.24 2.42A.5.5 0 0 1 7 17.5V6a2 2 0 0 1 2-2z"/>
+    </symbol>
+  </svg>
+
+  <!-- Partículas (slot para particles.js) -->
+  <div id="particles-js"></div>
+
+  <!-- Theme Toggle simples -->
+  <button id="themeToggle" aria-label="Alternar tema" type="button"></button>
+
+  <!-- Logo / Orb -->
+  <div class="svg-container" id="logoContainer">
+    <svg viewBox="0 0 24 24">
+      <use href="#icon-orb"></use>
+    </svg>
+  </div>
+
+  <!-- Nome do assistente -->
+  <div id="assistantName">Dual.Infodose · Cinemático</div>
+
+  <!-- Container de respostas -->
+  <div class="response-container" id="response">
+    <div class="pages-wrapper" id="pagesWrapper">
+      <div class="page initial active" data-page-index="0">
+        <strong id="bootText" data-text="🧬 Iniciando. Pulso simbiótico detectado. Presença reconhecida.">
+          🧬 Iniciando. Pulso simbiótico detectado. Presença reconhecida.
+        </strong>
+      </div>
+    </div>
+
+    <p class="footer-text" id="footerHint">
+      <span class="footer-dot"></span>
+      Do seu jeito. Sempre único. Sempre seu.
+    </p>
+
+    <div class="response-controls">
+      <div class="control-buttons">
+        <button class="icon-btn" id="copyBtn" title="Copiar resposta" type="button">
+          <svg viewBox="0 0 24 24"><use href="#icon-copy"></use></svg>
+        </button>
+        <button class="icon-btn" id="pasteBtn" title="Colar no input" type="button">
+          <svg viewBox="0 0 24 24"><use href="#icon-paste"></use></svg>
+        </button>
+        <button class="icon-btn" id="toggleLoginBtn" title="Ativar / Alterar nomes" type="button">
+          <svg viewBox="0 0 24 24"><use href="#icon-user"></use></svg>
+        </button>
+        <button class="icon-btn" id="toggleSettingsBtn" title="Configuração IA / Tema" type="button">
+          <svg viewBox="0 0 24 24"><use href="#icon-settings"></use></svg>
+        </button>
+        <button class="icon-btn" id="toggleLivroVivoPanelBtn" title="Livro Vivo · Vozes / Arquétipos" type="button">
+          <svg viewBox="0 0 24 24"><use href="#icon-book"></use></svg>
+        </button>
+      </div>
+      <div class="pagination">
+        <button aria-label="Página anterior" data-action="prev" id="pagePrev" type="button">⟵</button>
+        <span id="pageIndicator">1 / 1</span>
+        <button aria-label="Próxima página" data-action="next" id="pageNext" type="button">⟶</button>
+      </div>
+    </div>
+
+    <!-- Painel de Config da IA (dentro do container) -->
+    <div id="iaConfigPanel">
+      <div id="iaConfigHeader">
+        <span>Config IA · OpenRouter & Tema</span>
+      </div>
+      <div class="ia-config-body">
+        <div class="ia-field">
+          <label for="apiKeyInput">API Key (sk-or-...)</label>
+          <input
+            id="apiKeyInput"
+            type="password"
+            placeholder="Cole sua chave OpenRouter aqui"
+            autocomplete="off"
+          />
+        </div>
+        <div class="ia-field">
+          <label for="modelSelect">Modelo</label>
+          <select id="modelSelect">
+            <option value="deepseek/deepseek-chat-v3-0324:free">deepseek-v3 · free</option>
+            <option value="meta-llama/llama-3.1-70b-instruct:free">Llama 3.1 70B · free</option>
+            <option value="openai/gpt-4.1-mini">GPT-4.1 mini</option>
+            <option value="openai/gpt-4.1">GPT-4.1</option>
+            <option value="custom">Custom (digitar abaixo)</option>
+          </select>
+        </div>
+        <div class="ia-field">
+          <label for="customModelInput">Modelo custom (opcional)</label>
+          <input
+            id="customModelInput"
+            type="text"
+            placeholder="ex: openai/gpt-4.1-mini"
+          />
+        </div>
+
+        <div class="ia-field">
+          <label for="themeSelect">Tema</label>
+          <select id="themeSelect">
+            <option value="dark">Dark</option>
+            <option value="vibe">Vibe</option>
+            <option value="medium">Medium</option>
+          </select>
+        </div>
+
+        <div class="ia-field">
+          <details class="ia-help">
+            <summary>Ajuda rápida OpenRouter</summary>
+            <p>Se clicar em Enviar e nada aparecer, verifique:</p>
+            <ul style="margin-left:16px;margin-top:4px;">
+              <li>Se o HTML está aberto num navegador real (Chrome/Edge/Safari), não em preview estático.</li>
+              <li>Se há erros no Console (F12 → Console) ao carregar ou clicar em Enviar.</li>
+              <li>Se a chave <code>sk-or-...</code> está correta e salva, e se a rede não está bloqueando o OpenRouter.</li>
+            </ul>
+          </details>
+        </div>
+
+        <div class="ia-actions">
+          <button class="pill-btn" id="saveIaConfigBtn" type="button">Salvar</button>
+          <button class="pill-btn secondary" id="clearIaConfigBtn" type="button">Limpar</button>
+        </div>
+        <div class="ia-status" id="iaStatus">Nenhuma chave salva ainda.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input / voz -->
+  <div class="input-container">
+    <input
+      id="userInput"
+      type="text"
+      placeholder="Diga: 'oi, Dual'."
+      aria-label="Digite sua mensagem"
+    />
+    <button id="sendBtn" title="Enviar" type="button">➤</button>
+    <button id="voiceBtn" title="Falar" type="button">
+      <svg viewBox="0 0 24 24"><use href="#icon-mic"></use></svg>
+    </button>
+  </div>
+
+  <!-- Login / nomes -->
+  <div class="login-container" id="loginBox" aria-modal="true" role="dialog">
+    <h2>Ativar Dual.Infodose</h2>
+    <p>Defina o seu nome e o nome-base do assistente para personalizar as respostas.</p>
+    <form id="loginForm">
+      <input id="userName" type="text" placeholder="Seu nome" required />
+      <input id="assistantInput" type="text" placeholder="Nome do assistente" required />
+      <button type="submit">Ativar</button>
+    </form>
+  </div>
+
+  <!-- Painel Livro Vivo · Vozes / Arquétipos -->
+  <div class="lv-panel" id="livroVivoPanel" aria-modal="true" role="dialog">
+    <div class="lv-header">
+      <div class="lv-title">Livro Vivo · Vozes / Arquétipos</div>
+      <button class="lv-close" id="lvCloseBtn" type="button">✕</button>
+    </div>
+    <div class="lv-body">
+      <div class="lv-field">
+        <label for="livroVivoInput">Texto Livro Vivo (Markdown + callouts)</label>
+        <textarea
+          id="livroVivoInput"
+          placeholder="Cole ou escreva aqui um trecho em formato Livro Vivo (suporta ::info, ::warn, ::success, ::question, ::aside, títulos, listas...)"
+        ></textarea>
+      </div>
+      <div class="lv-field">
+        <label for="lvVoiceSelect">Voz / Arquétipo</label>
+        <select id="lvVoiceSelect">
+          <option value="atlas">Atlas · Estruturador</option>
+          <option value="nova">Nova · Inspiração</option>
+          <option value="serena">Serena · Acolhimento</option>
+          <option value="bllue">Bllue · Emoção</option>
+          <option value="kaos">Kaos · Disruptivo</option>
+          <option value="aion">Aion · Tempo Profundo</option>
+        </select>
+      </div>
+      <div class="lv-actions">
+        <button class="pill-btn" id="renderLivroVivoBtn" type="button">Renderizar LV</button>
+        <button class="pill-btn secondary" id="clearLivroVivoBtn" type="button">Limpar</button>
+        <button class="pill-btn" id="lvPlayBtn" type="button">Ouvir</button>
+      </div>
+      <div id="livroVivoSlot"></div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    //  dual-Infodose Chat Cinematográfico · Refatorado V3.1
+    //  - Config OpenRouter dentro do container
+    //  - Botão Config + Botão Livro Vivo lado a lado
+    //  - Scroll suave ao abrir config
+    //  - Painel Livro Vivo com vozes/arquetipos + TTS nativo
+    //  - Mic com Web Speech API (quando disponível)
+    //  - Footer colapsa chat + input
+    // =========================================================
+
+    (function(){
+      // ---------- Constantes & Storage ----------
+      const STORAGE = {
+        THEME: 'infodoseTheme',
+        USER_NAME: 'infodoseUserName',
+        ASSISTANT_NAME: 'infodoseAssistantName',
+        OPENROUTER_KEY: 'openrouter_api_key',
+        OPENROUTER_MODEL: 'openrouter_model',
+        LIVROVIVO_MD: 'infodoseLivroVivoMd',
+        LIVROVIVO_VOICE: 'infodoseLivroVivoVoice'
+      };
+
+      const DEFAULTS = {
+        API_URL: 'https://openrouter.ai/api/v1/chat/completions',
+        MODEL:   'deepseek/deepseek-chat-v3-0324:free',
+        TEMP:    0.2,
+        CHUNK_SIZE: 12000
+      };
+
+      let CONFIG = {
+        API_URL: DEFAULTS.API_URL,
+        MODEL: DEFAULTS.MODEL,
+        TEMP: DEFAULTS.TEMP,
+        CHUNK_SIZE: DEFAULTS.CHUNK_SIZE,
+        AUTH_TOKEN: ''
+      };
+
+      // ---------- Helpers DOM ----------
+      const $  = sel => document.querySelector(sel);
+      const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+      const responseContainer = $('#response');
+      const pagesWrapper   = $('#pagesWrapper');
+      const pageIndicator  = $('#pageIndicator');
+      const footerHint     = $('#footerHint');
+      const copyBtn        = $('#copyBtn');
+      const pasteBtn       = $('#pasteBtn');
+      const toggleLoginBtn = $('#toggleLoginBtn');
+      const loginBox       = $('#loginBox');
+      const loginForm      = $('#loginForm');
+      const userNameInput  = $('#userName');
+      const assistantInput = $('#assistantInput');
+      const assistantNameEl= $('#assistantName');
+      const userInput      = $('#userInput');
+      const sendBtn        = $('#sendBtn');
+      const pagePrev       = $('#pagePrev');
+      const pageNext       = $('#pageNext');
+      const themeToggleBtn = $('#themeToggle');
+      const settingsBtn    = $('#toggleSettingsBtn');
+
+      const iaConfigPanel   = $('#iaConfigPanel');
+      const apiKeyInput     = $('#apiKeyInput');
+      const modelSelect     = $('#modelSelect');
+      const customModelInput= $('#customModelInput');
+      const saveIaConfigBtn = $('#saveIaConfigBtn');
+      const clearIaConfigBtn= $('#clearIaConfigBtn');
+      const iaStatus        = $('#iaStatus');
+      const themeSelect     = $('#themeSelect');
+
+      const voiceBtn        = $('#voiceBtn');
+
+      // Livro Vivo panel
+      const lvPanel         = $('#livroVivoPanel');
+      const lvOpenBtn       = $('#toggleLivroVivoPanelBtn');
+      const lvCloseBtn      = $('#lvCloseBtn');
+      const livroVivoInput  = $('#livroVivoInput');
+      const livroVivoSlot   = $('#livroVivoSlot');
+      const renderLivroVivoBtn = $('#renderLivroVivoBtn');
+      const clearLivroVivoBtn  = $('#clearLivroVivoBtn');
+      const lvPlayBtn       = $('#lvPlayBtn');
+      const lvVoiceSelect   = $('#lvVoiceSelect');
+
+      let pages = [];          // cada página é uma resposta cinematográfica
+      let currentPage = 0;
+      let conversation = [];
+      let isCollapsed = false;
+
+      let recognition = null;
+      let isRecording = false;
+      let currentUtterance = null;
+
+      // ---------- Config IA (OpenRouter) ----------
+      function loadIaConfigFromStorage() {
+        const key   = localStorage.getItem(STORAGE.OPENROUTER_KEY) || '';
+        const model = localStorage.getItem(STORAGE.OPENROUTER_MODEL) || DEFAULTS.MODEL;
+
+        CONFIG.API_URL = DEFAULTS.API_URL;
+        CONFIG.MODEL   = model || DEFAULTS.MODEL;
+        CONFIG.TEMP    = DEFAULTS.TEMP;
+        CONFIG.CHUNK_SIZE = DEFAULTS.CHUNK_SIZE;
+        CONFIG.AUTH_TOKEN = key ? 'Bearer ' + key : '';
+
+        apiKeyInput.value = key;
+        let optionFound = false;
+        Array.from(modelSelect.options).forEach(opt => {
+          if (opt.value === model) {
+            optionFound = true;
+            modelSelect.value = model;
+          }
+        });
+        if (!optionFound) {
+          modelSelect.value = 'custom';
+          customModelInput.value = model;
+        }
+
+        if (!key) {
+          iaStatus.textContent = 'Nenhuma chave salva ainda.';
+          iaStatus.className = 'ia-status warn';
+        } else {
+          iaStatus.textContent = 'Config carregada. Pronto para chamar a IA.';
+          iaStatus.className = 'ia-status ok';
+        }
+      }
+
+      function saveIaConfig() {
+        let key = apiKeyInput.value.trim();
+        let model = modelSelect.value;
+
+        if (model === 'custom') {
+          const custom = customModelInput.value.trim();
+          if (custom) model = custom;
+        }
+
+        if (!model) model = DEFAULTS.MODEL;
+
+        if (!key) {
+          iaStatus.textContent = 'Cole uma chave sk-or-... para salvar.';
+          iaStatus.className = 'ia-status warn';
+          return;
+        }
+
+        try {
+          localStorage.setItem(STORAGE.OPENROUTER_KEY, key);
+          localStorage.setItem(STORAGE.OPENROUTER_MODEL, model);
+        } catch (e) {
+          console.error('Erro ao salvar config IA:', e);
+        }
+
+        CONFIG.AUTH_TOKEN = 'Bearer ' + key;
+        CONFIG.MODEL = model;
+
+        iaStatus.textContent = 'Config salva com sucesso.';
+        iaStatus.className = 'ia-status ok';
+      }
+
+      function clearIaConfig() {
+        try {
+          localStorage.removeItem(STORAGE.OPENROUTER_KEY);
+          localStorage.removeItem(STORAGE.OPENROUTER_MODEL);
+        } catch (e) {
+          console.error('Erro ao limpar config IA:', e);
+        }
+        apiKeyInput.value = '';
+        customModelInput.value = '';
+        modelSelect.value = DEFAULTS.MODEL;
+        CONFIG.AUTH_TOKEN = '';
+        CONFIG.MODEL = DEFAULTS.MODEL;
+        iaStatus.textContent = 'Config limpa. Defina novamente antes de enviar.';
+        iaStatus.className = 'ia-status warn';
+      }
+
+      if (saveIaConfigBtn) saveIaConfigBtn.addEventListener('click', saveIaConfig);
+      if (clearIaConfigBtn) clearIaConfigBtn.addEventListener('click', clearIaConfig);
+
+      // ---------- Theme ----------
+      function applyTheme(theme) {
+        document.body.dataset.theme = theme;
+        try {
+          localStorage.setItem(STORAGE.THEME, theme);
+        } catch (e) {
+          console.error('Erro ao salvar tema:', e);
+        }
+        if (themeSelect) {
+          themeSelect.value = theme;
+        }
+      }
+
+      function restoreTheme() {
+        const theme = localStorage.getItem(STORAGE.THEME) || 'dark';
+        applyTheme(theme);
+      }
+
+      if (themeSelect) {
+        themeSelect.addEventListener('change', () => {
+          applyTheme(themeSelect.value || 'dark');
+        });
+      }
+
+      themeToggleBtn.addEventListener('click', () => {
+        const current = document.body.dataset.theme || 'dark';
+        const cycle = ['dark','vibe','medium'];
+        const idx = cycle.indexOf(current);
+        const next = cycle[(idx + 1) % cycle.length];
+        applyTheme(next);
+      });
+
+      // ---------- Login / nomes ----------
+      function restoreNames() {
+        const user = localStorage.getItem(STORAGE.USER_NAME) || '';
+        const asst = localStorage.getItem(STORAGE.ASSISTANT_NAME) || 'Dual.Infodose · Cinemático';
+
+        if (user) userNameInput.value = user;
+        if (asst) assistantInput.value = asst;
+        assistantNameEl.textContent = asst;
+      }
+
+      toggleLoginBtn.addEventListener('click', () => {
+        loginBox.classList.toggle('active');
+      });
+
+      loginForm.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const user = userNameInput.value.trim() || 'Você';
+        const asst = assistantInput.value.trim() || 'Dual.Infodose';
+
+        try {
+          localStorage.setItem(STORAGE.USER_NAME, user);
+          localStorage.setItem(STORAGE.ASSISTANT_NAME, asst);
+        } catch (e) {
+          console.error('Erro ao salvar nomes:', e);
+        }
+        assistantNameEl.textContent = asst;
+        loginBox.classList.remove('active');
+
+        conversation.unshift({
+          role: 'system',
+          content: `O usuário se chama ${user}. O assistente se apresenta como ${asst}. Responda com carinho cinematográfico.`
+        });
+      });
+
+      // ---------- Páginas cinematográficas ----------
+      function updatePageIndicator() {
+        const total = pages.length || 1;
+        const current = (currentPage + 1);
+        pageIndicator.textContent = current + ' / ' + total;
+      }
+
+      function showPage(idx) {
+        const list = $$('.page');
+        list.forEach(p => p.classList.remove('active'));
+        const target = list[idx];
+        if (target) {
+          target.classList.add('active');
+          currentPage = idx;
+          updatePageIndicator();
+        }
+      }
+
+      pagePrev.addEventListener('click', () => {
+        if (pages.length <= 1) return;
+        const next = (currentPage - 1 + pages.length) % pages.length;
+        showPage(next);
+      });
+
+      pageNext.addEventListener('click', () => {
+        if (pages.length <= 1) return;
+        const next = (currentPage + 1) % pages.length;
+        showPage(next);
+      });
+
+      // Footer como colapsador do chat + input
+      function setCollapsed(state) {
+        isCollapsed = state;
+        if (isCollapsed) {
+          responseContainer.classList.add('collapsed');
+        } else {
+          responseContainer.classList.remove('collapsed');
+        }
+      }
+
+      footerHint.addEventListener('click', () => {
+        setCollapsed(!isCollapsed);
+      });
+
+      // Botão de Config toggle com scroll suave
+      if (settingsBtn && iaConfigPanel) {
+        settingsBtn.addEventListener('click', () => {
+          const willOpen = !iaConfigPanel.classList.contains('active');
+          iaConfigPanel.classList.toggle('active');
+          if (willOpen) {
+            // pequena rolagem pra mostrar config
+            setTimeout(() => {
+              responseContainer.scrollTo({
+                top: responseContainer.scrollHeight,
+                behavior: 'smooth'
+              });
+            }, 50);
+          }
+        });
+      }
+
+      function clearPages() {
+        pages = [];
+        const nodes = $$('.page');
+        nodes.forEach((node, index) => {
+          if (index !== 0) node.remove();
+        });
+        currentPage = 0;
+        showPage(0);
+      }
+
+      function renderPagesFromData(data) {
+        const existing = $$('.page');
+        existing.forEach((node, index) => {
+          if (index !== 0) node.remove();
+        });
+
+        data.forEach((page, idx) => {
+          const div = document.createElement('div');
+          div.className = 'page active';
+          div.dataset.pageIndex = String(idx + 1);
+
+          const block = document.createElement('div');
+          block.className = 'response-block ' + (page.kind || 'middle');
+          block.innerHTML = page.html;
+          div.appendChild(block);
+          pagesWrapper.appendChild(div);
+        });
+
+        const initial = pagesWrapper.querySelector('.page.initial');
+        if (initial) initial.classList.remove('active');
+
+        currentPage = 0;
+        showPage(0);
+      }
+
+      // ---------- Markdown básico ----------
+      function parseMarkdownBasic(text) {
+        if (!text) return '';
+
+        text = text.replace(/^### (.*)$/gim, '<h3>$1</h3>');
+        text = text.replace(/^## (.*)$/gim, '<h2>$1</h2>');
+        text = text.replace(/^# (.*)$/gim, '<h1>$1</h1>');
+        text = text.replace(/^> (.*)$/gim, '<blockquote>$1</blockquote>');
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+        text = text.replace(/^\s*[-*+] (.*)$/gim, '<li>$1</li>');
+        text = text.replace(/(<li>.*<\/li>)/gims, '<ul>$1</ul>');
+
+        return text;
+      }
+
+      // Livro Vivo: callouts + markdown básico
+      function parseLivroVivo(text) {
+        if (!text) return '';
+        let out = text;
+
+        out = out.replace(/^::(info|warn|success|question|aside)\s+(.*)$/gim,
+          function(_m, type, rest){
+            return '<div class="lv-callout ' + type + '">' + rest + '</div>';
+          });
+
+        out = parseMarkdownBasic(out);
+        return out.replace(/\n/g, '<br/>');
+      }
+
+      function renderLivroVivo() {
+        if (!livroVivoSlot) return;
+        const txt = (livroVivoInput?.value || '').trim();
+        if (!txt) {
+          livroVivoSlot.innerHTML = '<p style="opacity:.8;">Cole um conteúdo Livro Vivo e clique em <strong>Renderizar LV</strong>.</p>';
+          try { localStorage.removeItem(STORAGE.LIVROVIVO_MD); } catch(e){}
+          return;
+        }
+        const html = parseLivroVivo(txt);
+        livroVivoSlot.innerHTML = html;
+        try {
+          localStorage.setItem(STORAGE.LIVROVIVO_MD, txt);
+        } catch (e) {
+          console.error('Erro ao salvar Livro Vivo:', e);
+        }
+      }
+
+      function clearLivroVivo() {
+        if (!livroVivoSlot) return;
+        livroVivoSlot.innerHTML = '';
+        if (livroVivoInput) livroVivoInput.value = '';
+        try {
+          localStorage.removeItem(STORAGE.LIVROVIVO_MD);
+        } catch (e) {
+          console.error('Erro ao limpar Livro Vivo:', e);
+        }
+      }
+
+      function restoreLivroVivoDraft() {
+        if (!livroVivoInput || !livroVivoSlot) return;
+        const txt = localStorage.getItem(STORAGE.LIVROVIVO_MD) || '';
+        const voice = localStorage.getItem(STORAGE.LIVROVIVO_VOICE) || 'atlas';
+        if (txt) {
+          livroVivoInput.value = txt;
+          livroVivoSlot.innerHTML = parseLivroVivo(txt);
+        } else {
+          livroVivoSlot.innerHTML = '<p style="opacity:.7;">Slot Livro Vivo aguardando o primeiro texto.</p>';
+        }
+        if (lvVoiceSelect) lvVoiceSelect.value = voice;
+      }
+
+      if (renderLivroVivoBtn) renderLivroVivoBtn.addEventListener('click', renderLivroVivo);
+      if (clearLivroVivoBtn)  clearLivroVivoBtn.addEventListener('click', clearLivroVivo);
+
+      // Painel Livro Vivo abrir/fechar
+      if (lvOpenBtn && lvPanel) {
+        lvOpenBtn.addEventListener('click', () => {
+          lvPanel.classList.add('active');
+        });
+      }
+      if (lvCloseBtn && lvPanel) {
+        lvCloseBtn.addEventListener('click', () => {
+          lvPanel.classList.remove('active');
+        });
+      }
+
+      // ---------- TTS para Livro Vivo ----------
+      function getVoiceParamsByArchetype(arch) {
+        switch(arch) {
+          case 'atlas':  return { rate: 0.95, pitch: 0.9 };
+          case 'nova':   return { rate: 1.05, pitch: 1.1 };
+          case 'serena': return { rate: 0.9, pitch: 1.0 };
+          case 'bllue':  return { rate: 1.0, pitch: 1.2 };
+          case 'kaos':   return { rate: 1.15, pitch: 1.05 };
+          case 'aion':   return { rate: 0.85, pitch: 0.85 };
+          default:       return { rate: 1.0, pitch: 1.0 };
+        }
+      }
+
+      function playLivroVivo() {
+        if (!window.speechSynthesis) {
+          alert('Leitura em voz alta não suportada neste navegador. Teste no Chrome/Edge mais recente.');
+          return;
+        }
+        const raw = livroVivoInput?.value || '';
+        const text = raw
+          .replace(/^::(info|warn|success|question|aside)\s+/gim, '')
+          .replace(/$begin:math:display$\\\[btn\:\[\^$end:math:display$]+\]\]/g, '')
+          .replace(/`([^`]+)`/g, '$1');
+
+        if (!text.trim()) {
+          alert('Nada para ler. Escreva ou cole um texto Livro Vivo primeiro.');
+          return;
+        }
+
+        const arch = lvVoiceSelect?.value || 'atlas';
+        const params = getVoiceParamsByArchetype(arch);
+
+        if (currentUtterance) {
+          window.speechSynthesis.cancel();
+          currentUtterance = null;
+        }
+
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'pt-BR';
+        u.rate = params.rate;
+        u.pitch = params.pitch;
+
+        currentUtterance = u;
+        window.speechSynthesis.speak(u);
+
+        try {
+          localStorage.setItem(STORAGE.LIVROVIVO_VOICE, arch);
+        } catch (e) {
+          console.error('Erro ao salvar voz Livro Vivo:', e);
+        }
+      }
+
+      if (lvPlayBtn) {
+        lvPlayBtn.addEventListener('click', playLivroVivo);
+      }
+
+      // ---------- Quebra resposta em 3 blocos (intro, meio, fim) ----------
+      function splitResponseCinematic(text) {
+        const parts = text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+        if (!parts.length) {
+          return [{
+            kind: 'middle',
+            html: '<p>' + text.replace(/\n/g, '<br/>') + '</p>'
+          }];
+        }
+
+        const blocks = [];
+        parts.forEach((p, idx) => {
+          const kind = idx === 0 ? 'intro' : (idx === parts.length - 1 ? 'ending' : 'middle');
+          const html = '<p>' + parseMarkdownBasic(p).replace(/\n/g, '<br/>') + '</p>';
+          blocks.push({ kind, html });
+        });
+        return blocks.slice(0, 3);
+      }
+
+      // ---------- IA: chamada ao OpenRouter ----------
+      async function callOpenRouter(promptText) {
+        if (!CONFIG.AUTH_TOKEN) {
+          throw new Error('Defina a chave OpenRouter no painel de Config IA.');
+        }
+
+        const userName = localStorage.getItem(STORAGE.USER_NAME) || 'Você';
+        const asstName = localStorage.getItem(STORAGE.ASSISTANT_NAME) || 'Dual.Infodose';
+
+        const messages = [
+          {
+            role: 'system',
+            content:
+`Você é ${asstName}, o assistente Dual.Infodose conectado ao ecossistema Hub1/KOBLLUX.
+Responda em português, em tom gentil, simbólico e acionável, como um "chat cinematográfico".
+Use parágrafos curtos, que possam ser divididos em 3 blocos: recompensa inicial, curiosidade no meio, e convite no final.`
+          }
+        ].concat(conversation, [
+          {
+            role: 'user',
+            content: `${userName} diz: ${promptText}`
+          }
+        ]);
+
+        const body = {
+          model: CONFIG.MODEL,
+          temperature: CONFIG.TEMP,
+          messages
+        };
+
+        const res = await fetch(CONFIG.API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': CONFIG.AUTH_TOKEN
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          console.error('Erro IA:', txt);
+          throw new Error('Falha na resposta da IA: ' + res.status);
+        }
+
+        const data = await res.json();
+        const choice = data.choices && data.choices[0];
+        const content = choice?.message?.content || '(sem conteúdo retornado)';
+        conversation.push({ role: 'user', content: promptText });
+        conversation.push({ role: 'assistant', content });
+        return content;
+      }
+
+      // ---------- Mic (Web Speech API) ----------
+      function initSpeechRecognition() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) return null;
+        const recog = new SR();
+        recog.lang = 'pt-BR';
+        recog.continuous = false;
+        recog.interimResults = false;
+        return recog;
+      }
+
+      function setupVoiceBtn() {
+        if (!voiceBtn) return;
+        recognition = initSpeechRecognition();
+
+        if (!recognition) {
+          voiceBtn.addEventListener('click', () => {
+            alert('Reconhecimento de voz não suportado neste navegador. Teste no Chrome (Android / Desktop).');
+          });
+          return;
+        }
+
+        recognition.onresult = (ev) => {
+          const text = Array.from(ev.results || [])
+            .map(r => r[0]?.transcript || '')
+            .join(' ')
+            .trim();
+          if (text) {
+            userInput.value = (userInput.value ? userInput.value + ' ' : '') + text;
+          }
+        };
+
+        recognition.onerror = (ev) => {
+          console.error('Erro SpeechRecognition:', ev.error);
+          footerHint.textContent = 'Não consegui ouvir direito. Tente novamente ou digite se preferir.';
+        };
+
+        recognition.onend = () => {
+          isRecording = false;
+          voiceBtn.classList.remove('recording');
+        };
+
+        voiceBtn.addEventListener('click', () => {
+          if (!recognition) return;
+          if (!isRecording) {
+            try {
+              recognition.start();
+              isRecording = true;
+              voiceBtn.classList.add('recording');
+              footerHint.textContent = 'Ouvindo... fale sua mensagem.';
+            } catch (e) {
+              console.error('Erro ao iniciar reconhecimento de voz:', e);
+            }
+          } else {
+            recognition.stop();
+          }
+        });
+      }
+
+      // ---------- Interação principal ----------
+      async function handleSend() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        setCollapsed(false);
+
+        userInput.value = '';
+        userInput.disabled = true;
+        sendBtn.disabled = true;
+        const oldFooter = footerHint.textContent;
+        footerHint.textContent = 'Processando pulso... mantendo o campo aberto.';
+
+        try {
+          const answer = await callOpenRouter(text);
+          const cinematicBlocks = splitResponseCinematic(answer);
+          pages = cinematicBlocks;
+          renderPagesFromData(cinematicBlocks);
+        } catch (err) {
+          console.error(err);
+          pages = [{
+            kind: 'ending',
+            html: '<p><strong>Ops.</strong> ' +
+              'Não consegui falar com o OpenRouter agora. Verifique sua chave, o Console do navegador e tente de novo.</p>'
+          }];
+          renderPagesFromData(pages);
+        } finally {
+          userInput.disabled = false;
+          sendBtn.disabled = false;
+          userInput.focus();
+          footerHint.textContent = oldFooter;
+        }
+      }
+
+      sendBtn.addEventListener('click', handleSend);
+      userInput.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter' && !ev.shiftKey) {
+          ev.preventDefault();
+          handleSend();
+        }
+      });
+
+      // Copy / Paste
+      copyBtn.addEventListener('click', async () => {
+        const activePage = pages[currentPage];
+        if (!activePage) return;
+        const temp = activePage.html
+          .replace(/<br\/?>/g, '\n')
+          .replace(/<[^>]+>/g, '');
+        try {
+          await navigator.clipboard.writeText(temp);
+          footerHint.textContent = 'Resposta copiada para a área de transferência.';
+        } catch {
+          footerHint.textContent = 'Não consegui copiar automaticamente. Copie manualmente se quiser.';
+        }
+      });
+
+      pasteBtn.addEventListener('click', async () => {
+        try {
+          const txt = await navigator.clipboard.readText();
+          if (txt) {
+            userInput.value = txt;
+          }
+        } catch {
+          // ignora
+        }
+      });
+
+      // ---------- Init ----------
+      function init() {
+        restoreTheme();
+        restoreNames();
+        loadIaConfigFromStorage();
+        restoreLivroVivoDraft();
+        updatePageIndicator();
+        setCollapsed(false);
+        setupVoiceBtn();
+      }
+
+      document.addEventListener('DOMContentLoaded', init);
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
