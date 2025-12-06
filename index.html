@@ -3,615 +3,1109 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>dual-Infodose Chat Cinematográfico · Ref V2.9 · Roda-Viva de Vozes</title>
+  <title>dual-Infodose Chat Cinematográfico · Roda-Viva</title>
 
+  <meta name="theme-color" content="#050811" />
+
+  <!-- Fonte básica -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" />
 
   <style>
-    :root {
-      --bg: radial-gradient(circle at 20% 20%, #121926, #050811 60%, #000000 100%);
-      --text: #e4ecff;
-      --accent: #00f5ff;
-      --accent-soft: rgba(0, 245, 255, .18);
-      --accent-pink: #ff4bff;
-      --danger: #ff4b6b;
-      --radius-card: 18px;
-      --radius-pill: 999px;
-      --shadow-soft: 0 18px 40px rgba(0,0,0,.65);
-      --fast: .25s;
-      --med: .6s;
-      --slow: 1.4s;
+    :root{
+      /* Tokens base para integração com KOB_THEME + Roda-Viva */
+      --grad-a:#00f5ff;
+      --grad-b:#ff4bff;
+      --bg:#050811;
+      --panel:rgba(5,8,17,.96);
+      --ink:#e4ecff;
+      --muted:#9aa4c8;
+
+      /* Tokens KOBLLUX de voz/tema (podem ser sobrescritos pelo patch) */
+      --kob-voice-primary:#00f5ff;
+      --kob-voice-secondary:#ff4bff;
+      --kob-voice-accent:#ffffff;
+      --kob-voice-bg-soft:rgba(0,245,255,.12);
+      --kob-voice-glow:0 0 18px rgba(0,245,255,.60);
+
+      /* Derivados internos do app */
+      --text: var(--ink);
+      --accent: var(--kob-voice-primary);
+      --accent-soft: rgba(0,245,255,.18);
+      --accent-pink: var(--kob-voice-secondary);
+      --danger:#ff4b6b;
+
+      --radius-card:18px;
+      --radius-pill:999px;
+      --shadow-soft:0 18px 40px rgba(0,0,0,.65);
+      --fast:.25s;
+      --med:.6s;
+      --slow:1.4s;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;}
 
-    body {
-      font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 16px 16px 24px;
-      overflow: hidden;
-      position: relative;
+    body{
+      font-family:"Montserrat",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at 20% 20%,var(--grad-a),var(--bg) 60%,#000000 100%);
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      padding:16px 16px 24px;
+      overflow:hidden;
+      position:relative;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
       background:
-        radial-gradient(circle at 10% 0%, rgba(0,255,255,.16) 0, transparent 50%),
-        radial-gradient(circle at 90% 100%, rgba(255,0,255,.12) 0, transparent 60%);
-      opacity: .7;
-      pointer-events: none;
-      mix-blend-mode: screen;
+        radial-gradient(circle at 10% 0%,rgba(0,255,255,.16) 0,transparent 50%),
+        radial-gradient(circle at 90% 100%,rgba(255,0,255,.12) 0,transparent 60%);
+      opacity:.7;
+      pointer-events:none;
+      mix-blend-mode:screen;
     }
 
-    #particles-js {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      opacity: .65;
+    #particles-js{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      opacity:.65;
     }
 
-    .svg-container {
-      position: relative;
-      margin-top: 40px;
-      width: 140px;
-      height: 140px;
-      filter: drop-shadow(0 0 25px rgba(0,255,255,.35));
-      animation: orbFloat 12s ease-in-out infinite;
-      z-index: 1;
+    .svg-container{
+      position:relative;
+      margin-top:40px;
+      width:140px;
+      height:140px;
+      filter:drop-shadow(0 0 25px rgba(0,255,255,.35));
+      animation:orbFloat 12s ease-in-out infinite;
+      z-index:1;
     }
-    .svg-container svg { width: 100%; height: 100%; object-fit: contain; }
+    .svg-container svg{width:100%;height:100%;object-fit:contain;}
 
-    @keyframes orbFloat {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-8px) scale(1.03); }
-    }
-
-    #assistantName {
-      margin-top: 8px;
-      font-size: 1.05rem;
-      font-weight: 600;
-      text-align: center;
-      opacity: .9;
-      z-index: 1;
+    @keyframes orbFloat{
+      0%,100%{transform:translateY(0) scale(1);}
+      50%{transform:translateY(-8px) scale(1.03);}
     }
 
-    .response-container {
-      position: fixed;
-      left: 16px;
-      right: 16px;
-      bottom: 160px;
-      max-height: calc(100vh - 260px);
-      padding: 12px;
-      border-radius: 20px;
-      background: radial-gradient(circle at 0 0, rgba(0,255,255,.14), rgba(0,0,0,.86));
-      backdrop-filter: blur(14px) saturate(160%);
-      box-shadow: var(--shadow-soft);
-      overflow-y: auto;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      animation: fadeInUp var(--slow) ease forwards;
-      transition: all var(--fast) ease;
+    #assistantName{
+      margin-top:8px;
+      font-size:1.05rem;
+      font-weight:600;
+      text-align:center;
+      opacity:.9;
+      z-index:1;
     }
 
-    .response-container.collapsed {
-      bottom: 24px;
-      max-height: none;
-      padding: 6px 10px;
-      background: radial-gradient(circle at 0 0, rgba(0,255,255,.22), rgba(0,0,0,.95));
+    .response-container{
+      position:fixed;
+      left:16px;
+      right:16px;
+      bottom:160px;
+      max-height:calc(100vh - 260px);
+      padding:12px;
+      border-radius:20px;
+      background:radial-gradient(circle at 0 0,var(--kob-voice-bg-soft),var(--panel));
+      backdrop-filter:blur(14px) saturate(160%);
+      box-shadow:var(--shadow-soft);
+      overflow-y:auto;
+      z-index:1;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      animation:fadeInUp var(--slow) ease forwards;
+      transition:all var(--fast) ease;
+    }
+
+    .response-container.collapsed{
+      bottom:24px;
+      max-height:none;
+      padding:6px 10px;
+      background:radial-gradient(circle at 0 0,var(--kob-voice-bg-soft),rgba(0,0,0,.95));
     }
     .response-container.collapsed .pages-wrapper,
     .response-container.collapsed .response-controls,
-    .response-container.collapsed #iaConfigPanel {
-      display: none;
+    .response-container.collapsed #iaConfigPanel{
+      display:none;
     }
-    .response-container.collapsed .footer-text {
-      margin-top: 0;
-      font-size: .78rem;
-      border-radius: 999px;
+    .response-container.collapsed .footer-text{
+      margin-top:0;
+      font-size:.78rem;
+      border-radius:999px;
     }
-    .response-container.collapsed + .input-container { display: none; }
+    .response-container.collapsed + .input-container{display:none;}
 
-    .pages-wrapper {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    #bootText {
-      font-weight: 700;
-      position: relative;
-      letter-spacing: .03em;
-      display: inline-block;
-    }
-    #bootText.pulse::after {
-      content: attr(data-text);
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(42deg, #0ff, #f0f);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: blur(4px);
-      opacity: .45;
-      pointer-events: none;
-      animation: pulseGlow 3s ease-in-out infinite;
+    .pages-wrapper{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
+    #bootText{
+      font-weight:700;
+      position:relative;
+      letter-spacing:.03em;
+      display:inline-block;
+      white-space:pre-line;
     }
-    @keyframes pulseGlow {
-      0%,100% { opacity: 0.4; }
-      50%     { opacity: 0.9; }
+    #bootText.pulse::after{
+      content:attr(data-text);
+      position:absolute;
+      inset:0;
+      background:linear-gradient(42deg,var(--kob-voice-primary),var(--kob-voice-secondary));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      filter:blur(4px);
+      opacity:.45;
+      pointer-events:none;
+      animation:pulseGlow 3s ease-in-out infinite;
     }
 
-    .response-block {
-      margin: .35rem 0;
-      padding: 1rem 1.1rem 1.9rem;
-      border-radius: 14px;
-      line-height: 1.7;
-      font-size: .9rem;
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,.04);
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(12px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+    @keyframes pulseGlow{
+      0%,100%{opacity:.4;}
+      50%{opacity:.9;}
+    }
+
+    .response-block{
+      margin:.35rem 0;
+      padding:1rem 1.1rem 1.9rem;
+      border-radius:14px;
+      line-height:1.7;
+      font-size:.9rem;
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.04);
       transition:
         box-shadow var(--fast),
         transform var(--fast),
         border-color var(--fast),
         background var(--fast),
         opacity var(--fast);
-      cursor: pointer;
+      cursor:pointer;
     }
-    .response-block:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 30px rgba(0,0,0,.7);
-      border-color: rgba(0,255,255,.3);
-    }
-
-    .response-block.intro {
-      background: linear-gradient(135deg, rgba(0,255,255,.18), rgba(0,40,70,.9));
-    }
-    .response-block.middle {
-      background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(6,10,28,.95));
-    }
-    .response-block.ending {
-      background: linear-gradient(135deg, rgba(255,0,255,.18), rgba(40,0,60,.95));
-    }
-    .response-block.user-pulse {
-      background: linear-gradient(135deg, rgba(0,0,0,.85), rgba(0,255,255,.22));
-      border-color: rgba(0,255,255,.6);
-      text-align: right;
+    .response-block:hover{
+      transform:translateY(-1px);
+      box-shadow:0 12px 30px rgba(0,0,0,.7);
+      border-color:rgba(0,255,255,.3);
     }
 
-    .response-block.clicked {
-      animation: blockClickPulse .4s ease;
+    .response-block.intro{
+      background:linear-gradient(135deg,rgba(0,255,255,.18),rgba(0,40,70,.9));
     }
-    @keyframes blockClickPulse {
-      0%   { transform: scale(1); box-shadow: 0 0 0 rgba(0,255,255,0); }
-      50%  { transform: scale(1.02); box-shadow: 0 0 24px rgba(0,255,255,.5); }
-      100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,255,255,0); }
+    .response-block.middle{
+      background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(6,10,28,.95));
+    }
+    .response-block.ending{
+      background:linear-gradient(135deg,rgba(255,0,255,.18),rgba(40,0,60,.95));
+    }
+    .response-block.user-pulse{
+      background:linear-gradient(135deg,rgba(0,0,0,.85),rgba(0,255,255,.22));
+      border-color:rgba(0,255,255,.6);
+      text-align:right;
     }
 
-    .response-block strong { color: var(--accent); }
+    .response-block.clicked{
+      animation:blockClickPulse .4s ease;
+    }
+    @keyframes blockClickPulse{
+      0%{transform:scale(1);box-shadow:0 0 0 rgba(0,255,255,0);}
+      50%{transform:scale(1.02);box-shadow:0 0 24px rgba(0,255,255,.5);}
+      100%{transform:scale(1);box-shadow:0 0 0 rgba(0,255,255,0);}
+    }
+
+    .response-block strong{color:var(--accent);}
 
     .response-block h1,
     .response-block h2,
-    .response-block h3 { margin-bottom: .2rem; }
-    .response-block h3 { font-size: .95rem; }
+    .response-block h3{margin-bottom:.2rem;}
+    .response-block h3{font-size:.95rem;}
 
-    .response-block code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: .8rem;
-      padding: .15rem .32rem;
-      border-radius: 6px;
-      background: rgba(0,0,0,.5);
+    .response-block code{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:.8rem;
+      padding:.15rem .32rem;
+      border-radius:6px;
+      background:rgba(0,0,0,.5);
+    }
+    .response-block pre{
+      max-width:100%;
+      overflow-x:auto;
+      padding:.6rem .7rem;
+      background:rgba(0,0,0,.55);
+      border-radius:8px;
+      font-size:.78rem;
+      margin-top:.4rem;
     }
 
-    .response-block pre {
-      max-width: 100%;
-      overflow-x: auto;
-      padding: .6rem .7rem;
-      background: rgba(0,0,0,.55);
-      border-radius: 8px;
-      font-size: .78rem;
-      margin-top: .4rem;
+    /* Botão TTS no bloco */
+    .block-tts-btn{
+      position:absolute;
+      right:8px;
+      bottom:8px;
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      border:none;
+      background:rgba(0,0,0,.75);
+      color:var(--accent);
+      font-size:.75rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:0 0 8px rgba(0,255,255,.4);
+      opacity:.9;
+      transition:transform var(--fast),box-shadow var(--fast),background var(--fast),opacity var(--fast);
     }
-
-    .block-tts-btn {
-      position: absolute;
-      right: 8px;
-      bottom: 8px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(0,0,0,.75);
-      color: var(--accent);
-      font-size: .75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 8px rgba(0,255,255,.4);
-      opacity: .9;
-      transition: transform var(--fast), box-shadow var(--fast), background var(--fast), opacity var(--fast);
-    }
-    .block-tts-btn:hover {
-      transform: translateY(-1px) scale(1.03);
-      box-shadow: 0 0 14px rgba(0,255,255,.7);
-      background: rgba(0,0,0,.95);
-      opacity: 1;
+    .block-tts-btn:hover{
+      transform:translateY(-1px) scale(1.03);
+      box-shadow:0 0 14px rgba(0,255,255,.7);
+      background:rgba(0,0,0,.95);
+      opacity:1;
     }
 
     /* Badge de arquétipo detectado */
-    .archetype-badge {
-      position: absolute;
-      left: 10px;
-      top: 8px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: .7rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      background: rgba(0,0,0,.65);
-      border: 1px solid rgba(0,255,255,.45);
-      color: #a7ffea;
-      pointer-events: none;
+    .archetype-badge{
+      position:absolute;
+      left:10px;
+      top:8px;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:.7rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      background:rgba(0,0,0,.65);
+      border:1px solid rgba(0,255,255,.45);
+      color:#a7ffea;
+      pointer-events:none;
     }
 
-    .footer-text {
-      margin-top: 6px;
-      padding: 6px 10px;
-      font-size: .78rem;
-      text-align: center;
-      opacity: .8;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(0,0,0,.65);
-      cursor: pointer;
-      transition: opacity var(--fast), transform var(--fast), box-shadow var(--fast), background var(--fast);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+    .footer-text{
+      margin-top:6px;
+      padding:6px 10px;
+      font-size:.78rem;
+      text-align:center;
+      opacity:.8;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.65);
+      cursor:pointer;
+      transition:opacity var(--fast),transform var(--fast),box-shadow var(--fast),background var(--fast);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
     }
-    .footer-text span.footer-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: linear-gradient(45deg,#0ff,#f0f);
-      box-shadow: 0 0 12px rgba(0,255,255,.7);
+    .footer-text span.footer-dot{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:linear-gradient(45deg,var(--kob-voice-primary),var(--kob-voice-secondary));
+      box-shadow:0 0 12px rgba(0,255,255,.7);
     }
-    .footer-text:hover {
-      opacity: .95;
-      transform: scale(1.02);
-      box-shadow: 0 0 18px rgba(0,255,255,.35);
-      background: rgba(0,0,0,.9);
-    }
-
-    .response-controls {
-      margin-top: 6px;
-      padding-top: 6px;
-      border-top: 1px solid rgba(255,255,255,.12);
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 8px;
+    .footer-text:hover{
+      opacity:.95;
+      transform:scale(1.02);
+      box-shadow:0 0 18px rgba(0,255,255,.35);
+      background:rgba(0,0,0,.9);
     }
 
-    .control-buttons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .response-controls{
+      margin-top:6px;
+      padding-top:6px;
+      border-top:1px solid rgba(255,255,255,.12);
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:8px;
     }
 
-    .icon-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(0,0,0,.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background var(--fast), transform var(--fast), opacity var(--fast);
-      opacity: .8;
-      color: var(--accent);
-    }
-    .icon-btn.secondary { color: #e4ecff; }
-    .icon-btn:hover {
-      background: rgba(255,255,255,.12);
-      transform: translateY(-1px);
-      opacity: 1;
-    }
-    .icon-btn svg {
-      width: 70%;
-      height: 70%;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
+    .control-buttons{
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
 
-    #iaConfigPanel {
-      margin-top: 6px;
-      padding: 8px 10px;
-      border-radius: 16px;
-      background: rgba(0, 8, 20, .96);
-      border: 1px solid rgba(0,255,255,.24);
-      box-shadow: 0 8px 24px rgba(0,0,0,.5);
-      color: var(--text);
-      font-size: .78rem;
-      display: none;
-      flex-direction: column;
-      gap: 6px;
+    .icon-btn{
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      border:none;
+      background:rgba(0,0,0,.7);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:background var(--fast),transform var(--fast),opacity var(--fast);
+      opacity:.8;
+      color:var(--accent);
     }
-    #iaConfigPanel.active { display: flex; }
+    .icon-btn.secondary{color:#e4ecff;}
+    .icon-btn:hover{
+      background:rgba(255,255,255,.12);
+      transform:translateY(-1px);
+      opacity:1;
+    }
+    .icon-btn svg{
+      width:70%;
+      height:70%;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.8;
+    }
 
-    #iaConfigHeader {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+    #iaConfigPanel{
+      margin-top:6px;
+      padding:8px 10px;
+      border-radius:16px;
+      background:rgba(0,8,20,.96);
+      border:1px solid rgba(0,255,255,.24);
+      box-shadow:0 8px 24px rgba(0,0,0,.5);
+      color:var(--text);
+      font-size:.78rem;
+      display:none;
+      flex-direction:column;
+      gap:6px;
     }
-    #iaConfigHeader span {
-      font-size: .78rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      opacity: .9;
+    #iaConfigPanel.active{display:flex;}
+
+    #iaConfigHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    #iaConfigHeader span{
+      font-size:.78rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      opacity:.9;
     }
 
-    .ia-config-body {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-top: 4px;
+    .ia-config-body{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-top:4px;
     }
-    .ia-field {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
+    .ia-field{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
     }
-    .ia-field label {
-      font-size: .72rem;
-      opacity: .8;
+    .ia-field label{
+      font-size:.72rem;
+      opacity:.8;
     }
     .ia-field input,
-    .ia-field select {
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid rgba(0,255,255,.3);
-      background: rgba(0,0,0,.7);
-      color: inherit;
-      padding: 5px 7px;
-      font-size: .78rem;
-      outline: none;
+    .ia-field select{
+      width:100%;
+      border-radius:8px;
+      border:1px solid rgba(0,255,255,.3);
+      background:rgba(0,0,0,.7);
+      color:inherit;
+      padding:5px 7px;
+      font-size:.78rem;
+      outline:none;
     }
-    .ia-field input::placeholder {
-      color: rgba(255,255,255,.38);
+    .ia-field input::placeholder{color:rgba(255,255,255,.38);}
+
+    .ia-actions{
+      display:flex;
+      justify-content:space-between;
+      gap:6px;
+      margin-top:4px;
     }
 
-    .ia-actions {
-      display: flex;
-      justify-content: space-between;
-      gap: 6px;
-      margin-top: 4px;
+    .pill-btn{
+      flex:1;
+      border-radius:999px;
+      border:1px solid rgba(0,255,255,.6);
+      background:transparent;
+      padding:5px 0;
+      font-size:.78rem;
+      cursor:pointer;
+      color:var(--accent);
+      transition:background var(--fast),color var(--fast),transform var(--fast);
+    }
+    .pill-btn:hover{
+      background:var(--accent);
+      color:#050515;
+      transform:translateY(-1px);
+    }
+    .pill-btn.secondary{
+      border-color:rgba(255,255,255,.35);
+      color:rgba(255,255,255,.8);
+    }
+    .pill-btn.secondary:hover{
+      background:rgba(255,255,255,.12);
+      color:#fff;
     }
 
-    .pill-btn {
-      flex: 1;
-      border-radius: 999px;
-      border: 1px solid rgba(0,255,255,.6);
-      background: transparent;
-      padding: 5px 0;
-      font-size: .78rem;
-      cursor: pointer;
-      color: var(--accent);
-      transition: background var(--fast), color var(--fast), transform var(--fast);
+    .ia-status{
+      font-size:.7rem;
+      opacity:.8;
+      margin-top:2px;
     }
-    .pill-btn:hover {
-      background: var(--accent);
-      color: #050515;
-      transform: translateY(-1px);
-    }
-    .pill-btn.secondary {
-      border-color: rgba(255,255,255,.35);
-      color: rgba(255,255,255,.8);
-    }
-    .pill-btn.secondary:hover {
-      background: rgba(255,255,255,.12);
-      color: #fff;
+    .ia-status.ok{color:#63f8ba;}
+    .ia-status.warn{color:#ffd480;}
+    .ia-status.err{color:var(--danger);}
+
+    .input-container{
+      position:fixed;
+      left:16px;
+      right:16px;
+      bottom:84px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      z-index:2;
+      transition:opacity var(--fast) ease,transform var(--fast) ease;
     }
 
-    .ia-status {
-      font-size: .7rem;
-      opacity: .8;
-      margin-top: 2px;
+    #userInput{
+      flex:1;
+      min-width:0;
+      padding:11px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.7);
+      color:inherit;
+      font-size:.95rem;
+      outline:none;
+      transition:border-color var(--fast),background var(--fast),box-shadow var(--fast);
     }
-    .ia-status.ok { color: #63f8ba; }
-    .ia-status.warn { color: #ffd480; }
-    .ia-status.err { color: var(--danger); }
-
-    .input-container {
-      position: fixed;
-      left: 16px;
-      right: 16px;
-      bottom: 84px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      z-index: 2;
-      transition: opacity var(--fast) ease, transform var(--fast) ease;
+    #userInput::placeholder{color:rgba(255,255,255,.35);}
+    #userInput:focus{
+      border-color:rgba(0,255,255,.65);
+      background:rgba(0,0,0,.9);
+      box-shadow:0 0 0 1px rgba(0,255,255,.45);
     }
 
-    #userInput {
-      flex: 1;
-      min-width: 0;
-      padding: 11px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(0,0,0,.7);
-      color: inherit;
-      font-size: .95rem;
-      outline: none;
-      transition: border-color var(--fast), background var(--fast), box-shadow var(--fast);
+    #sendBtn{
+      width:56px;
+      height:56px;
+      border-radius:50%;
+      border:none;
+      background:conic-gradient(from 120deg,var(--kob-voice-primary),var(--kob-voice-secondary),var(--kob-voice-primary));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:var(--kob-voice-glow);
+      transition:transform var(--fast),box-shadow var(--fast);
+      color:#050515;
+      font-size:1.6rem;
     }
-    #userInput::placeholder { color: rgba(255,255,255,.35); }
-    #userInput:focus {
-      border-color: rgba(0,255,255,.65);
-      background: rgba(0,0,0,.9);
-      box-shadow: 0 0 0 1px rgba(0,255,255,.45);
-    }
-
-    #sendBtn {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      border: none;
-      background: conic-gradient(from 120deg, #0ff, #f0f, #0ff);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 18px rgba(0,255,255,.55);
-      transition: transform var(--fast), box-shadow var(--fast);
-      color: #050515;
-      font-size: 1.6rem;
-    }
-    #sendBtn .send-label { transform: translateX(1px); }
-    #sendBtn:hover {
-      transform: translateY(-1px) scale(1.04);
-      box-shadow: 0 0 26px rgba(0,255,255,.8);
+    #sendBtn .send-label{transform:translateX(1px);}
+    #sendBtn:hover{
+      transform:translateY(-1px) scale(1.04);
+      box-shadow:0 0 26px rgba(0,255,255,.8);
     }
 
-    #voiceBtn {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(0,0,0,.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 0 1px rgba(255,255,255,.08);
-      transition: transform var(--fast), box-shadow var(--fast), background var(--fast);
-      position: relative;
-      overflow: hidden;
+    #voiceBtn{
+      width:52px;
+      height:52px;
+      border-radius:50%;
+      border:none;
+      background:rgba(0,0,0,.75);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(255,255,255,.08);
+      transition:transform var(--fast),box-shadow var(--fast),background var(--fast);
+      position:relative;
+      overflow:hidden;
+      color:var(--accent);
     }
-    #voiceBtn svg { width: 70%; height: 70%; fill: none; stroke: currentColor; stroke-width: 1.8; }
-    #voiceBtn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 18px rgba(0,255,255,.45);
-      background: rgba(0,0,0,.95);
+    #voiceBtn svg{width:70%;height:70%;fill:none;stroke:currentColor;stroke-width:1.8;}
+    #voiceBtn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 0 18px rgba(0,255,255,.45);
+      background:rgba(0,0,0,.95);
     }
-    #voiceBtn.speaking {
-      background: radial-gradient(circle at 0 0, rgba(0,255,255,.35), rgba(0,0,0,1));
-      box-shadow: 0 0 18px rgba(0,255,255,.75);
-      animation: voicePulse 1.4s ease-in-out infinite;
+    #voiceBtn.speaking{
+      background:radial-gradient(circle at 0 0,rgba(0,255,255,.35),rgba(0,0,0,1));
+      box-shadow:0 0 18px rgba(0,255,255,.75);
+      animation:voicePulse 1.4s ease-in-out infinite;
     }
-    @keyframes voicePulse {
-      0%   { box-shadow: 0 0 8px rgba(0,255,255,.3); transform: translateY(-1px) scale(1); }
-      50%  { box-shadow: 0 0 24px rgba(0,255,255,.8); transform: translateY(-1px) scale(1.06); }
-      100% { box-shadow: 0 0 8px rgba(0,255,255,.3); transform: translateY(-1px) scale(1); }
-    }
-
-    .login-container {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 300px;
-      max-width: 88vw;
-      transform: translate(-50%, -50%);
-      background: radial-gradient(circle at 0 0, rgba(0,255,255,.2), rgba(0,0,0,.9));
-      border-radius: 18px;
-      padding: 16px 14px 14px;
-      border: 1px solid rgba(0,255,255,.3);
-      backdrop-filter: blur(18px) saturate(180%);
-      box-shadow: var(--shadow-soft);
-      z-index: 20;
-      display: none;
-      animation: fadeInUp .4s.ease;
-    }
-    .login-container.active { display: block; }
-    .login-container h2 { font-size: 1rem; margin-bottom: 6px; }
-    .login-container p { font-size: .8rem; opacity: .8; margin-bottom: 10px; }
-    .login-container input {
-      width: 100%;
-      margin-bottom: 8px;
-      padding: 7px 2px;
-      border: none;
-      border-bottom: 1px solid rgba(255,255,255,.35);
-      background: transparent;
-      color: inherit;
-      font-size: .9rem;
-      outline: none;
-    }
-    .login-container input::placeholder { color: rgba(255,255,255,.45); }
-    .login-container button[type="submit"] {
-      margin-top: 8px;
-      width: 100%;
-      border-radius: 999px;
-      border: 1px solid var(--accent);
-      background: transparent;
-      color: var(--accent);
-      padding: 8px 0;
-      font-size: .9rem;
-      cursor: pointer;
-      transition: background var(--fast), color var(--fast), transform var(--fast);
-    }
-    .login-container button[type="submit"]:hover {
-      background: var(--accent);
-      color: #050515;
-      transform: translateY(-1px);
+    @keyframes voicePulse{
+      0%{box-shadow:0 0 8px rgba(0,255,255,.3);transform:translateY(-1px) scale(1);}
+      50%{box-shadow:0 0 24px rgba(0,255,255,.8);transform:translateY(-1px) scale(1.06);}
+      100%{box-shadow:0 0 8px rgba(0,255,255,.3);transform:translateY(-1px) scale(1);}
     }
 
-    #themeToggle {
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,.4);
-      background: radial-gradient(circle at 0 0, rgba(255,255,255,.4), transparent 60%);
-      cursor: pointer;
-      opacity: .7;
-      z-index: 10;
-      transition: opacity var(--fast), transform var(--fast), box-shadow var(--fast);
+    .login-container{
+      position:fixed;
+      top:50%;
+      left:50%;
+      width:300px;
+      max-width:88vw;
+      transform:translate(-50%,-50%);
+      background:radial-gradient(circle at 0 0,rgba(0,255,255,.2),rgba(0,0,0,.9));
+      border-radius:18px;
+      padding:16px 14px 14px;
+      border:1px solid rgba(0,255,255,.3);
+      backdrop-filter:blur(18px) saturate(180%);
+      box-shadow:var(--shadow-soft);
+      z-index:20;
+      display:none;
+      animation:fadeInUp .4s ease;
     }
-    #themeToggle:hover {
-      opacity: 1;
-      transform: translateY(-1px);
-      box-shadow: 0 0 12px rgba(255,255,255,.7);
+    .login-container.active{display:block;}
+    .login-container h2{font-size:1rem;margin-bottom:6px;}
+    .login-container p{font-size:.8rem;opacity:.8;margin-bottom:10px;}
+    .login-container input{
+      width:100%;
+      margin-bottom:8px;
+      padding:7px 2px;
+      border:none;
+      border-bottom:1px solid rgba(255,255,255,.35);
+      background:transparent;
+      color:inherit;
+      font-size:.9rem;
+      outline:none;
+    }
+    .login-container input::placeholder{color:rgba(255,255,255,.45);}
+    .login-container button[type="submit"]{
+      margin-top:8px;
+      width:100%;
+      border-radius:999px;
+      border:1px solid var(--accent);
+      background:transparent;
+      color:var(--accent);
+      padding:8px 0;
+      font-size:.9rem;
+      cursor:pointer;
+      transition:background var(--fast),color var(--fast),transform var(--fast);
+    }
+    .login-container button[type="submit"]:hover{
+      background:var(--accent);
+      color:#050515;
+      transform:translateY(-1px);
     }
 
-    .response-container::-webkit-scrollbar { width: 4px; }
-    .response-container::-webkit-scrollbar-track { background: transparent; }
-    .response-container::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,.35);
-      border-radius: 999px;
+    #themeToggle{
+      position:fixed;
+      top:16px;
+      left:16px;
+      width:30px;
+      height:30px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.4);
+      background:radial-gradient(circle at 0 0,rgba(255,255,255,.4),transparent 60%);
+      cursor:pointer;
+      opacity:.7;
+      z-index:10;
+      transition:opacity var(--fast),transform var(--fast),box-shadow var(--fast);
+    }
+    #themeToggle:hover{
+      opacity:1;
+      transform:translateY(-1px);
+      box-shadow:0 0 12px rgba(255,255,255,.7);
     }
 
-    @media (min-width: 768px) {
-      body {
-        max-width: 520px;
-        margin: 0 auto;
+    .response-container::-webkit-scrollbar{width:4px;}
+    .response-container::-webkit-scrollbar-track{background:transparent;}
+    .response-container::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,.35);
+      border-radius:999px;
+    }
+
+    /* Livro Vivo – Callouts */
+    .lv-callout{
+      margin:.4rem 0;
+      padding:.45rem .6rem;
+      border-radius:10px;
+      font-size:.8rem;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(0,0,0,.45);
+    }
+    .lv-callout.lv-info{border-color:rgba(0,255,255,.5);color:#d7faff;}
+    .lv-callout.lv-warn{border-color:#ffc857;color:#ffebbc;}
+    .lv-callout.lv-success{border-color:#39ffb6;color:#d7ffe9;}
+    .lv-callout.lv-question{border-color:#7b88ff;color:#dde0ff;}
+    .lv-callout.lv-aside{border-style:dashed;color:#c8c8d8;}
+
+    /* Livro Vivo – Botões */
+    .lv-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:.26rem .7rem;
+      border-radius:999px;
+      border:1px solid rgba(0,255,255,.6);
+      background:rgba(0,0,0,.6);
+      font-size:.78rem;
+      cursor:pointer;
+      margin:.1rem .16rem .1rem 0;
+      color:var(--accent);
+      gap:.35rem;
+      transition:background var(--fast),color var(--fast),transform var(--fast),box-shadow var(--fast);
+    }
+    .lv-btn::before{
+      content:"⚡";
+      font-size:.7rem;
+      opacity:.85;
+    }
+    .lv-btn:hover{
+      background:var(--accent);
+      color:#050515;
+      transform:translateY(-1px);
+      box-shadow:0 0 14px rgba(0,255,255,.6);
+    }
+
+    /* Livro Vivo – Tabelista */
+    .md-tabelista{
+      margin:8px 0;
+      padding:8px 9px;
+      border-radius:10px;
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.08);
+      font-size:.8rem;
+    }
+    .md-tabelista .tbl-head{
+      font-weight:600;
+      margin-bottom:2px;
+    }
+    .md-tabelista .tbl-sub{
+      opacity:.75;
+      font-size:.75rem;
+      margin-bottom:4px;
+    }
+    .md-tabelista ul{
+      list-style:none;
+      padding:0;
+      margin:0;
+    }
+    .md-tabelista li{
+      padding:2px 0;
+      border-top:1px solid rgba(255,255,255,.06);
+    }
+    .md-tabelista li:first-child{border-top:none;}
+    .md-tabelista .tbl-col1{font-weight:500;}
+    .md-tabelista .tbl-col2{opacity:.85;}
+    .md-tabelista .tbl-col3{opacity:.8;}
+
+    @media (min-width:768px){
+      body{
+        max-width:520px;
+        margin:0 auto;
       }
     }
   </style>
+
+  <!-- Patches KOBLLUX / Vozes / Tema / Fades (podem ser recortados como patch) -->
+  <!-- KOBLLUX · Vozes Arquétipas — Patch Inline (UPDATED) -->
+  <script id="KOBLLUX_VOICES_INTEGRATION">
+  (()=>{
+
+    const ARCHETYPES = [
+      { id:'atlas',   name:'Atlas',   tone:'Estratégico, metódico',        modulation:'Grave, ritmo calculado, dicção nítida.',        voice:'Reed',    rate:1.0,  pitch:0.93 },
+      { id:'nova',    name:'Nova',    tone:'Vibrante, entusiasmado',       modulation:'Agudo, entusiasmado, ligeiramente rápido.',      voice:'Luciana', rate:1.063, pitch:1.34 },
+      { id:'vitalis', name:'Vitalis', tone:'Energético, urgente',          modulation:'Rápido, intenso, motivacional.',                  voice:'Rocko',   rate:0.96, pitch:1.42 },
+      { id:'pulse',   name:'Pulse',   tone:'Emocional, melódico',          modulation:'Fluido, tom médio/suave.',                       voice:'Reed',    rate:1.0, pitch:1.14 },
+      { id:'artemis', name:'Artemis', tone:'Aventureiro, expansivo',       modulation:'Curioso, exploratório.',                         voice:'es_f',    rate:1.00, pitch:1.23 },
+      { id:'serena',  name:'Serena',  tone:'Calmo, acolhedor',             modulation:'Suave, terapêutico, com pausas.',                voice:'Joana',   rate:0.92, pitch:0.90 },
+      { id:'kaos',    name:'Kaos',    tone:'Desafiador, imprevisível',     modulation:'Intenso, ritmo entrecortado.',                   voice:'Rocko',   rate:1.09, pitch:1.28 },
+      { id:'genus',   name:'Genus',   tone:'Prático, detalhista',          modulation:'Tom firme, foco na dicção.',                     voice:'Reed',    rate:0.98, pitch:1.20 },
+      { id:'lumine',  name:'Lumine',  tone:'Alegre, brincalhão',           modulation:'Agudo, vibrante.',                               voice:'Flo',     rate:1.030, pitch:1.55 },
+      { id:'solus',   name:'Solus',   tone:'Sábio, introspectivo',         modulation:'Grave, lento, eco sutil.',                       voice:'es_m',    rate:0.88, pitch:0.87 },
+      { id:'rhea',    name:'Rhea',    tone:'Profundo, conectivo',          modulation:'Calmo, eco sutil.',                              voice:'Joana',   rate:1.02, pitch:0.59 },
+      { id:'aion',    name:'Aion',    tone:'Futurista, metódico',          modulation:'Tom constante, progressivo.',                    voice:'Monica',  rate:0.98, pitch:1.00 },
+      { id:'kobllux', name:'KOBLLUX', tone:'Núcleo do sistema, oracular',
+        modulation:'Grave-médio, presença de comando, ritmo estável.',     voice:'es_m',  rate:0.98, pitch:0.48 },
+      { id:'uno',     name:'Uno',     tone:'Essência, origem, foco',
+        modulation:'Tom centrado, poucas variações, pausas marcadas.',     voice:'Grandma',    rate:0.90, pitch:0.93 },
+      { id:'dual',    name:'Dual',    tone:'Espelho, contraste, jogo',
+        modulation:'Alterna leve entre grave/agudo, ritmo pulsante.',      voice:'pt_m',    rate:1.02, pitch:1.02 },
+      { id:'trinity', name:'Trinity', tone:'Síntese, tríade viva',
+        modulation:'Voz estável com micro variações rítmicas em 3 tempos.', voice:'Sandy', rate:1.04, pitch:1.04 },
+      { id:'infodose',name:'Infodose',tone:'Didático, carismático, dopamínico',
+        modulation:'Tom amigável, ritmo de recompensa → curiosidade.',      voice:'Luciana', rate:1.06, pitch:0.96 },
+      { id:'kodux',   name:'KODUX',   tone:'Criador do pulso, metaconsciência',
+        modulation:'Grave, confiante, pausas longas, intenção forte.',      voice:'Reed pt-BR',  rate:0.86, pitch:0.68 },
+      { id:'bllue',   name:'Bllue',   tone:'Emocional, sensorial, intuitivo',
+        modulation:'Suave, quase sussurrado, ritmo ondulante.',            voice:'Joana',   rate:0.94, pitch:1.42 },
+      { id:'minuz',   name:'Minuz',   tone:'Minimalista, direto, hacker',
+        modulation:'Rápido, cortes secos, foco em termos técnicos.',       voice:'Reed',    rate:1.05, pitch:0.90 },
+      { id:'hanah',   name:'HANAH',   tone:'Estético, simbólico, futurista',
+        modulation:'Tom limpo, levemente ecoado, cadência ritualística.',  voice:'Monica',  rate:1.00, pitch:1.08 },
+      { id:'metalux', name:'MetaLux', tone:'Estético, simbólico, futurista',
+        modulation:'Tom limpo, levemente ecoado, cadência ritualística.',  voice:'Grandma',  rate:0.80, pitch:1.68 }
+    ];
+
+    window.KOBLLUX_VOICES = ARCHETYPES.reduce((acc,a)=>{
+      acc[a.name.toLowerCase()] = a;
+      return acc;
+    },{});
+
+    const origSpeak = window.speechSynthesis.speak.bind(window.speechSynthesis);
+    window.speechSynthesis.speak = (u)=>{
+      const text = (u.text||'').toLowerCase();
+      const found = ARCHETYPES.find(a=> text.includes(a.name.toLowerCase()));
+      if(found){
+        const voices = speechSynthesis.getVoices();
+        const match = voices.find(v=> v && v.name && v.name.includes(found.voice));
+        if(match) u.voice = match;
+        u.pitch = found.pitch;
+        u.rate  = found.rate;
+        console.log('🎙️ KOBLLUX Voice →', found.name, '→', found.voice, `(rate=${found.rate}, pitch=${found.rate})`);
+      }
+      origSpeak(u);
+    };
+
+    console.log('⚡ KOBLLUX Voices Integradas —', ARCHETYPES.length, 'perfis ativos');
+    window.dispatchEvent(new Event('KOBLLUX_VOICES_READY'));
+  })();
+  </script>
+
+  <!-- KOBLLUX · PATCH de Tema de Voz (V3+cores por arquétipo) -->
+  <script id="KOB_VOICE_THEME_PATCH_V3">
+  (()=>{
+    if (!('speechSynthesis' in window)) return;
+
+    const root = document.documentElement;
+    const body = document.body;
+    const metaTheme = document.querySelector('meta[name="theme-color"]') || null;
+
+    const BASE = {};
+    const VARS = ['--grad-a','--grad-b','--bg','--panel','--ink','--muted'];
+    const cs = getComputedStyle(root);
+    VARS.forEach(v=>{
+      BASE[v] = cs.getPropertyValue(v) || '';
+    });
+
+    const DEFAULT_THEME = {
+      neutral: {
+        gradA: BASE['--grad-a'],
+        gradB: BASE['--grad-b'],
+        bg:    BASE['--bg'],
+        panel: BASE['--panel'],
+        ink:   BASE['--ink'],
+        muted: BASE['--muted'],
+        meta:  '#070b14'
+      },
+      atlas:   { gradA:'#00c4ff', gradB:'#0066ff', bg:'#050814', panel:'#0b1020', ink:'#eaf6ff', muted:'#8aa4c8', meta:'#04101f' },
+      nova:    { gradA:'#ff7ad9', gradB:'#ffb347', bg:'#140512', panel:'#20091f', ink:'#ffeefc', muted:'#ffb7e4', meta:'#2a0723' },
+      vitalis: { gradA:'#00ff95', gradB:'#00ffd0', bg:'#04140e', panel:'#071e17', ink:'#eafff7', muted:'#8fdac2', meta:'#012018' },
+      pulse:   { gradA:'#ff5fa7', gradB:'#5f8bff', bg:'#120517', panel:'#1b0a22', ink:'#ffeafd', muted:'#c79ddc', meta:'#24082a' },
+      serena:  { gradA:'#7bc7ff', gradB:'#7bffe0', bg:'#03111a', panel:'#071823', ink:'#eaf6ff', muted:'#99bfd7', meta:'#031520' },
+      kaos:    { gradA:'#ff4b81', gradB:'#ffdd55', bg:'#18040a', panel:'#250811', ink:'#ffeef4', muted:'#ffb3c9', meta:'#24030b' },
+      genus:   { gradA:'#9b8fff', gradB:'#5fffe3', bg:'#070718', panel:'#0c0d22', ink:'#eef0ff', muted:'#a4a8dd', meta:'#08081f' },
+      lumine:  { gradA:'#ffe66b', gradB:'#ff9bff', bg:'#170a06', panel:'#25120e', ink:'#fff7e3', muted:'#f3cfa2', meta:'#261308' },
+      solus:   { gradA:'#6b8cff', gradB:'#341f5f', bg:'#050715', panel:'#090b1f', ink:'#e3e8ff', muted:'#9ea4d6', meta:'#050716' },
+      rhea:    { gradA:'#3cffd2', gradB:'#3c8bff', bg:'#031411', panel:'#071d19', ink:'#eafffb', muted:'#8cd8c8', meta:'#031914' },
+      aion:    { gradA:'#9c7bff', gradB:'#4fd5ff', bg:'#060414', panel:'#0c0920', ink:'#f0e9ff', muted:'#b19de4', meta:'#07051a' },
+
+      kobllux: { gradA:'#00ffd0', gradB:'#00b3ff', bg:'#020812', panel:'#050d18', ink:'#eafcff', muted:'#8ac7dd', meta:'#010710' },
+      uno:     { gradA:'#ffffff', gradB:'#8ee7ff', bg:'#05070b', panel:'#090b11', ink:'#f5f8ff', muted:'#aeb4c8', meta:'#05070b' },
+      dual:    { gradA:'#ff7ab3', gradB:'#7af0ff', bg:'#0b0510', panel:'#13081c', ink:'#ffeefe', muted:'#c49ccf', meta:'#0c0714' },
+      trinity: { gradA:'#7affd1', gradB:'#ffef7a', bg:'#060b05', panel:'#0b1409', ink:'#f7ffef', muted:'#b7d7a9', meta:'#050c05' },
+
+      infodose:{ gradA:'#00d8d8', gradB:'#d800d8', bg:'#050813', panel:'#090f1e', ink:'#f2f5ff', muted:'#a1a8c8', meta:'#060818' },
+      kodux:   { gradA:'#00f5ff', gradB:'#0078ff', bg:'#02060f', panel:'#050a16', ink:'#e5f5ff', muted:'#8bb5d6', meta:'#020610' },
+      bllue:   { gradA:'#6be1ff', gradB:'#3c6bff', bg:'#020911', panel:'#04121d', ink:'#e7f6ff', muted:'#8fbad3', meta:'#020b13' },
+      minuz:   { gradA:'#b7b7b7', gradB:'#4b4b4b', bg:'#050505', panel:'#101010', ink:'#f3f3f3', muted:'#a5a5a5', meta:'#050505' },
+      hanah:   { gradA:'#ffb3f8', gradB:'#70d7ff', bg:'#130514', panel:'#1c0b1e', ink:'#ffeefe', muted:'#c9a4d8', meta:'#160819' },
+      metalux: { gradA:'#f5ff8a', gradB:'#8af5ff', bg:'#080b02', panel:'#101507', ink:'#f9ffe6', muted:'#c6d39b', meta:'#090d03' }
+    };
+
+    const THEMES = Object.assign({}, DEFAULT_THEME, (window.KOB_VOICE_THEME || {}));
+
+    function setVar(name, value){
+      if (value != null && value !== '') {
+        root.style.setProperty(name, value);
+      }
+    }
+
+    function applyTheme(id){
+      const key = (id && String(id).toLowerCase()) || 'neutral';
+      const cfg = THEMES[key] || THEMES.neutral;
+      setVar('--grad-a', cfg.gradA);
+      setVar('--grad-b', cfg.gradB);
+      setVar('--bg',     cfg.bg);
+      setVar('--panel',  cfg.panel);
+      setVar('--ink',    cfg.ink);
+      setVar('--muted',  cfg.muted);
+      if (metaTheme && cfg.meta) metaTheme.setAttribute('content', cfg.meta);
+
+      if (key === 'neutral'){
+        body.removeAttribute('data-voice-arch');
+      } else {
+        body.setAttribute('data-voice-arch', key);
+      }
+    }
+    window.KOB_APPLY_VOICE_THEME = applyTheme;
+
+    function detectArchFromUtterance(u){
+      const t = (u && u.text || '').toLowerCase();
+      if (!t) return null;
+
+      if (window.KOBLLUX_VOICES){
+        for (const k in window.KOBLLUX_VOICES){
+          if (!Object.prototype.hasOwnProperty.call(window.KOBLLUX_VOICES,k)) continue;
+          const arch = window.KOBLLUX_VOICES[k];
+          const name = String(arch.name || k).toLowerCase();
+          if (t.includes('['+name) || t.includes(name+']') || t.includes(name+' —') || t.includes('## '+name) || t.includes(name)){
+            return (arch.id || name || k).toLowerCase();
+          }
+        }
+      }
+
+      for (const k in THEMES){
+        if (k === 'neutral') continue;
+        if (t.includes(k.toLowerCase())) return k.toLowerCase();
+      }
+
+      return null;
+    }
+
+    const prevSpeak = window.speechSynthesis.speak.bind(window.speechSynthesis);
+    const prevCancel = window.speechSynthesis.cancel.bind(window.speechSynthesis);
+
+    window.speechSynthesis.speak = function(u){
+      try{
+        const archId = detectArchFromUtterance(u);
+        if (archId){
+          applyTheme(archId);
+        }
+      }catch(e){
+        console.warn('[KOB_VOICE_THEME_PATCH] erro ao detectar arquétipo', e);
+      }
+      return prevSpeak(u);
+    };
+
+    window.speechSynthesis.cancel = function(){
+      try{ applyTheme(null); }catch{}
+      return prevCancel();
+    };
+
+    applyTheme(null);
+  })();
+  </script>
+
+  <!-- KOBLLUX · THEME COLORS (tokens --kob-voice-*) -->
+  <script id="KOBLLUX_VOICE_THEME_PATCH">
+  (()=>{
+    if (window.__KOBLLUX_VOICE_THEME_PATCH__) return;
+    window.__KOBLLUX_VOICE_THEME_PATCH__ = true;
+
+    const COLOR_MAP = {
+      kobllux:{ primary:'#00d8d8', secondary:'#d800d8', accent:'#39FFB6', bg_soft:'rgba(0,216,216,0.08)', glow:'0 0 18px rgba(0,216,216,0.55)' },
+      cooplux:{ primary:'#39FFB6', secondary:'#00d8d8', accent:'#ffffff', bg_soft:'rgba(57,255,182,0.10)', glow:'0 0 16px rgba(57,255,182,0.60)' },
+      fitlux:{ primary:'#FFC857', secondary:'#FFE39A', accent:'#22252f', bg_soft:'rgba(255,200,87,0.12)', glow:'0 0 16px rgba(255,200,87,0.70)' },
+      atlas:{ primary:'#6CCFF6', secondary:'#1B4965', accent:'#CAE9FF', bg_soft:'rgba(108,207,246,0.10)', glow:'0 0 14px rgba(108,207,246,0.55)' },
+      nova:{ primary:'#FF6FB5', secondary:'#FFD6E8', accent:'#FFE066', bg_soft:'rgba(255,111,181,0.12)', glow:'0 0 16px rgba(255,111,181,0.65)' },
+      vitalis:{ primary:'#00F5A0', secondary:'#00D9F5', accent:'#0b1720', bg_soft:'rgba(0,245,160,0.10)', glow:'0 0 18px rgba(0,245,160,0.65)' },
+      pulse:{ primary:'#A259FF', secondary:'#2D1B69', accent:'#F1E4FF', bg_soft:'rgba(162,89,255,0.12)', glow:'0 0 18px rgba(162,89,255,0.70)' },
+      serena:{ primary:'#7AD3A8', secondary:'#154734', accent:'#EAFBF3', bg_soft:'rgba(122,211,168,0.12)', glow:'0 0 16px rgba(122,211,168,0.65)' },
+      kaos:{ primary:'#FF5C8A', secondary:'#3D000F', accent:'#FFD6E0', bg_soft:'rgba(255,92,138,0.12)', glow:'0 0 20px rgba(255,92,138,0.75)' },
+      genus:{ primary:'#4EE1A0', secondary:'#193A3A', accent:'#E1FFF2', bg_soft:'rgba(78,225,160,0.10)', glow:'0 0 16px rgba(78,225,160,0.65)' },
+      lumine:{ primary:'#FFE066', secondary:'#FF9F1C', accent:'#2F2F40', bg_soft:'rgba(255,224,102,0.16)', glow:'0 0 18px rgba(255,224,102,0.75)' },
+      rhea:{ primary:'#00B894', secondary:'#055E55', accent:'#D1FFF6', bg_soft:'rgba(0,184,148,0.14)', glow:'0 0 16px rgba(0,184,148,0.65)' },
+      solus:{ primary:'#4B6584', secondary:'#0B1420', accent:'#E3EFFA', bg_soft:'rgba(75,101,132,0.16)', glow:'0 0 14px rgba(75,101,132,0.65)' },
+      aion:{ primary:'#00A8E8', secondary:'#001F54', accent:'#C4F1FF', bg_soft:'rgba(0,168,232,0.14)', glow:'0 0 16px rgba(0,168,232,0.70)' },
+      uno:{ primary:'#FFFFFF', secondary:'#BBBBBB', accent:'#FFFFFF', bg_soft:'rgba(255,255,255,0.05)', glow:'0 0 16px rgba(255,255,255,0.35)' },
+      dual:{ primary:'#FF9F1C', secondary:'#2EC4B6', accent:'#f5f5f5', bg_soft:'rgba(255,159,28,0.10)', glow:'0 0 14px rgba(255,159,28,0.65)' },
+      trinity:{ primary:'#00d8d8', secondary:'#FFE066', accent:'#ffffff', bg_soft:'rgba(0,216,216,0.09)', glow:'0 0 18px rgba(0,216,216,0.70)' },
+      infodose:{ primary:'#39FFB6', secondary:'#FFE066', accent:'#11141c', bg_soft:'rgba(57,255,182,0.12)', glow:'0 0 18px rgba(57,255,182,0.75)' },
+      kodux:{ primary:'#FF6FB5', secondary:'#5B2C6F', accent:'#FDEBFF', bg_soft:'rgba(91,44,111,0.18)', glow:'0 0 16px rgba(255,111,181,0.70)' },
+      bllue:{ primary:'#4A90E2', secondary:'#142850', accent:'#E3F2FF', bg_soft:'rgba(74,144,226,0.14)', glow:'0 0 16px rgba(74,144,226,0.70)' },
+      minuz:{ primary:'#FF3366', secondary:'#111111', accent:'#FFE3ED', bg_soft:'rgba(255,51,102,0.16)', glow:'0 0 16px rgba(255,51,102,0.75)' },
+      hanah:{ primary:'#FFB6C1', secondary:'#3C1F3C', accent:'#FFE9F0', bg_soft:'rgba(255,182,193,0.16)', glow:'0 0 16px rgba(255,182,193,0.70)' },
+      metalux:{ primary:'#B0E0E6', secondary:'#202733', accent:'#F0FBFF', bg_soft:'rgba(176,224,230,0.16)', glow:'0 0 18px rgba(176,224,230,0.70)' }
+    };
+
+    const root = document.documentElement;
+    const body = document.body;
+
+    function normalizeKey(s){
+      return String(s||'').normalize('NFD')
+        .replace(/\p{Diacritic}/gu,'')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g,'');
+    }
+
+    function detectArchKeyFromText(text){
+      if(!text) return null;
+      const raw = String(text);
+      const trimmed = raw.trim();
+      const lowAll  = trimmed.toLowerCase();
+
+      const m = trimmed.match(/^\[([^\]]+)\]/);
+      if(m){
+        const namePart = m[1].split('—')[0].split('-')[0].trim();
+        const k = normalizeKey(namePart);
+        if(COLOR_MAP[k]) return k;
+      }
+
+      for(const key of Object.keys(COLOR_MAP)){
+        if(lowAll.includes(key)) return key;
+      }
+
+      try{
+        if(window.KOB_TTS_VOICE_STYLE_HOOK){
+          const arch = window.KOB_TTS_VOICE_STYLE_HOOK(raw);
+          const k = normalizeKey(arch);
+          if(COLOR_MAP[k]) return k;
+        }
+      }catch(e){}
+
+      return null;
+    }
+
+    function applyColorTheme(key){
+      const cfg = COLOR_MAP[key];
+      if(!cfg) return;
+
+      root.style.setProperty('--kob-voice-primary',   cfg.primary  || '#00d8d8');
+      root.style.setProperty('--kob-voice-secondary', cfg.secondary|| cfg.primary || '#d800d8');
+      root.style.setProperty('--kob-voice-accent',    cfg.accent   || '#ffffff');
+      root.style.setProperty('--kob-voice-bg-soft',   cfg.bg_soft  || 'rgba(0,0,0,0.25)');
+      root.style.setProperty('--kob-voice-glow',      cfg.glow     || '0 0 0 transparent');
+
+      if(body){
+        body.setAttribute('data-voice-arch', key);
+      }
+
+      try{
+        window.dispatchEvent(new CustomEvent('KOB_VOICE_COLOR',{ detail:{ id:key, color:cfg } }));
+      }catch(e){}
+    }
+
+    const prevSpeak = window.speechSynthesis.speak.bind(window.speechSynthesis);
+
+    window.speechSynthesis.speak = function(u){
+      try{
+        if(u instanceof SpeechSynthesisUtterance){
+          const key = detectArchKeyFromText(u.text||'');
+          if(key){
+            applyColorTheme(key);
+            console.log('🎨 KOBLLUX THEME →', key);
+          }
+        }
+      }catch(e){
+        console.warn('KOBLLUX_VOICE_THEME_PATCH error:', e);
+      }
+      return prevSpeak(u);
+    };
+
+    console.log('⚡ KOBLLUX_VOICE_THEME_PATCH ativo — cores dinâmicas por arquétipo');
+  })();
+  </script>
+
+  <!-- KOBLLUX · Soft Transitions / Fade -->
+  <script id="KOB_THEME_TRANSITION_SOFT_OVERRIDE">
+  (()=>{
+    if (window.__KOB_THEME_TRANSITION_SOFT_OVERRIDE__) return;
+    window.__KOB_THEME_TRANSITION_SOFT_OVERRIDE__ = true;
+
+    const css = `
+    :root{
+      --kob-voice-theme-duration: 6600ms;
+    }
+    body,
+    .nebula,
+    .nebula-bg,
+    .page,
+    .page-inner,
+    details.acc,
+    .btn,
+    #fab,
+    .kob-tts-dock,
+    .kob-tts-panel.is-dock {
+      transition:
+        background-color var(--kob-voice-theme-duration) ease-in-out,
+        background        var(--kob-voice-theme-duration) ease-in-out,
+        box-shadow        var(--kob-voice-theme-duration) ease-in-out,
+        border-color      var(--kob-voice-theme-duration) ease-in-out,
+        color             var(--kob-voice-theme-duration) ease-in-out;
+    }`;
+    const style = document.createElement('style');
+    style.id = 'KOB_THEME_TRANSITION_SOFT_CSS';
+    style.textContent = css;
+    document.head.appendChild(style);
+    console.log('🎨 KOB_THEME_TRANSITION_SOFT_OVERRIDE ativo (fade ~6.6s)');
+  })();
+  </script>
+
+  <script id="KOB_BG_FADE_OVERRIDE">
+  (()=>{
+    if (window.__KOB_BG_FADE_OVERRIDE__) return;
+    window.__KOB_BG_FADE_OVERRIDE__ = true;
+
+    const css = `
+    :root{
+      --kob-voice-theme-duration: 7800ms;
+    }
+    body,
+    .nebula{
+      transition:
+        background-color var(--kob-voice-theme-duration) ease-in-out !important,
+        background        var(--kob-voice-theme-duration) ease-in-out !important,
+        box-shadow        var(--kob-voice-theme-duration) ease-in-out !important,
+        color             var(--kob-voice-theme-duration) ease-in-out !important,
+        filter            var(--kob-voice-theme-duration) ease-in-out !important;
+    }`;
+    const style = document.createElement('style');
+    style.id = 'KOB_BG_FADE_CSS';
+    style.textContent = css;
+    document.head.appendChild(style);
+    console.log('🎨 KOB_BG_FADE_OVERRIDE ativo (body + .nebula com fade ~7.8s)');
+  })();
+  </script>
+
+  <script id="KOB_BUTTON_FADE_AND_TTS_SHADOW_PATCH">
+  (()=>{
+    if (window.__KOB_BUTTON_FADE_AND_TTS_SHADOW_PATCH__) return;
+    window.__KOB_BUTTON_FADE_AND_TTS_SHADOW_PATCH__ = true;
+
+    const css = `
+    :root{
+      --kob-voice-theme-duration: 1100ms;
+    }
+    .btn,
+    .chip,
+    button,
+    #fab,
+    .fab,
+    .menu button,
+    details.acc,
+    details.acc summary,
+    .kob-tts-dock button,
+    .kob-tts-panel.is-dock button{
+      transition:
+        background-color var(--kob-voice-theme-duration) ease-in-out,
+        background        var(--kob-voice-theme-duration) ease-in-out,
+        border-color      var(--kob-voice-theme-duration) ease-in-out,
+        color             var(--kob-voice-theme-duration) ease-in-out,
+        box-shadow        var(--kob-voice-theme-duration) ease-in-out;
+    }
+    .kob-tts-dock{
+      box-shadow:
+        0 6px 14px rgba(0,0,0,.30),
+        inset 0 0 0 1px rgba(255,255,255,.04) !important;
+    }`;
+    const style = document.createElement('style');
+    style.id = 'KOB_BUTTON_FADE_AND_TTS_SHADOW_CSS';
+    style.textContent = css;
+    document.head.appendChild(style);
+    console.log('🎨 KOB_BUTTON_FADE_AND_TTS_SHADOW_PATCH ativo');
+  })();
+  </script>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <script>
@@ -624,6 +1118,7 @@
 </head>
 <body>
 
+  <!-- Ícones inline -->
   <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;">
     <symbol id="icon-copy" viewBox="0 0 24 24">
       <rect x="9" y="9" width="11" height="11" rx="2" />
@@ -673,9 +1168,9 @@
       <div class="response-block intro initial" id="bootBlock">
         <strong
           id="bootText"
-          data-text="Iniciando. Pulso simbiótico detectado. Presença reconhecida."
+          data-text="Iniciando Roda-Viva. Pulso simbiótico detectado. Presença reconhecida."
         >
-          Iniciando. Pulso simbiótico detectado. Presença reconhecida.
+          Iniciando Roda-Viva. Pulso simbiótico detectado. Presença reconhecida.
         </strong>
       </div>
     </div>
@@ -779,861 +1274,894 @@
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
   <script>
-    (function(){
-      const STORAGE = {
-        ENABLED: 'infodoseEnabled',
-        THEME: 'infodoseTheme',
-        USER_NAME: 'infodoseUserName',
-        ASSISTANT_NAME: 'infodoseAssistantName',
-        OPENROUTER_KEY: 'openrouter_api_key',
-        OPENROUTER_MODEL: 'openrouter_model',
-        VOICE_CONFIG: 'infodoseVoiceConfig',
-        VOICE_CURRENT_KEY: 'infodoseVoiceCurrentKey'
+  (function(){
+    const STORAGE = {
+      ENABLED: 'infodoseEnabled',
+      THEME: 'infodoseTheme',
+      USER_NAME: 'infodoseUserName',
+      ASSISTANT_NAME: 'infodoseAssistantName',
+      OPENROUTER_KEY: 'openrouter_api_key',
+      OPENROUTER_MODEL: 'openrouter_model',
+      VOICE_CONFIG: 'infodoseVoiceConfig',
+      VOICE_CURRENT_KEY: 'infodoseVoiceCurrentKey'
+    };
+
+    const DEFAULTS = {
+      API_URL: 'https://openrouter.ai/api/v1/chat/completions',
+      MODEL:   'deepseek/deepseek-chat-v3-0324:free',
+      TEMP:    0.2,
+      CHUNK_SIZE: 12000
+    };
+
+    const synth = window.speechSynthesis || null;
+    let currentUtterance = null;
+    let availableVoices = [];
+    let voiceConfig = null;
+    let currentVoiceKey = 'default';
+
+    if (synth) {
+      const loadVoices = () => {
+        try { availableVoices = synth.getVoices() || []; }
+        catch(e){ availableVoices = []; }
       };
+      loadVoices();
+      synth.onvoiceschanged = loadVoices;
+    }
 
-      const DEFAULTS = {
-        API_URL: 'https://openrouter.ai/api/v1/chat/completions',
-        MODEL:   'deepseek/deepseek-chat-v3-0324:free',
-        TEMP:    0.2,
-        CHUNK_SIZE: 12000
-      };
+    const $  = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-      // === MAPA DE PALAVRAS-CHAVE POR ARQUÉTIPO (do teu JSON) ===
-      const ARCHETYPE_KEYWORDS = {
-        Atlas: [
-          "fluxo","estrutura","estruturadas","caminho","organização","árvore","mapa","estruturas","estruturador","organiza","estruturada","matriz","fluxos","rotas","cardíaco","estruturado","planos","organizam","plano","rota","estrutural","mapas","mapear","flashcard","organizadas","dual","btn","infodose","movimento","verbo","kodux","arquétipos","energia"
-        ],
-        Nova: [
-          "criar","visão","ideias","ideia","protótipos","imaginando","divisão","protótipo","descobrir","ativar","true","água","dopamina","app","nova","upa","estado","coroa","kobllux","atlas","pulse","sempre","não","pulso","kaos","ritual","final","ativo","cada","codex","perfil","ascendente","conectar"
-        ],
-        Vitalis: [
-          "vitalis","memória","respiração","corpo","ritmo","respira","hidratação","corpos","respirações","memórias","h3o2","memóriadaágua","vitalidade","ritmos","vital","respirar","vitalis","md","azul","frequência","cor","loop","trinity","futuro","silêncio","expansão","base","elétrico","objetivo","seres","memória","centro","subst"
-        ],
-        Pulse: [
-          "tempo","ciclo","ciclos","cadência","batidas","temporária","pulsos","sincronia","sincronizando","temporal","batida","loops","sincroniza","sincronizar","pessoas","criativa","fórmula","rgba","substantivo","propósito","pulsar","energizando","insights","iluminando","78k","visual","html","forma","vivo","único","espaço","progressão","livro"
-        ],
-        Artemis: [
-          "foco","focou","focos","precisão","user","button","viva","poster","expectativa","class","foco","síntese","vibração","ativações","saída","json","essencial","duais","alta","jeito","edilson","border","ou","campo","luz","vazio","nome","ativos","empresa","mental","pdf","pontes","ascii"
-        ],
-        Serena: [
-          "custompromptadditions","voz","pausa","automaticamente","contexto","clareza","calma","repousar","contextos","calmas","vozes","automática","metalinguagem","pausas","toma","custom","automáticas","suave","texto","eterno","elemento","doses","favoritecolors","sex","data","olho","prisma","ordem","camada","som","palavra","conexões","background"
-        ],
-        Kaos: [
-          "quebra","ruptura","caos","quebrado","provocações","provoca","quebrar","quebras","virada","design","assistente","intenção","recompensa","sensação","aqui","mente","warn","info","3·6·9·7","alinhamento","código","símbolo","camadas","cria","mantra","processo","consciência","gerar","sistema","arch","integrar","expandir","espiral"
-        ],
-        Genus: [
-          "padrão","padrões","preferências","documento","referência","tabela","criação","leitura","integração","uno","entrada","text","simbólicas","narrativa","real","usuário","assistentes","span","origem","ressonância","hórus","retorno","tudo","música","pulsante","status","coordenação","horus","mobile","first","color","gradient","salvar"
-        ],
-        Lumine: [
-          "coração","estética","cores","iluminar","designsystem","estéticas","core","gradientes","beleza","coroa7","ocorrem","visualize","ancoragem","corrompido","mediarecorder","correta","acordo","luzes","coracao","visualização","chave","mas","mini","tts","cubo","potencial","cálice","cristo","digital","interesses","tecnologia","atual","ascensão"
-        ],
-        Rhea: [
-          "guia","cuidado","acolher","suporte","humano","guiado","acolhe","empatia","guiadas","imediata","pulsantes","prontas","name","lovable","primary","00ffff","secondary","ff00ff","coblux","brava","responsivo","preferrednarratives","sons","personalização","cyan","magenta","0ff","font","10px","ease","join","botão","modo"
-        ],
-        Solus: [
-          "comunicação","unir","universo","comunidade","unidade","humaniza","unico","simbólico","está","micro","coerência","molécula","superfícies","pequenas","ativação","repouso","espelho","terra","transparent","deve","engajamento","versão","arquétipo","função","emocional","ouvir","prática","raiz","manifesto","ação","selar","inspirar","expirar"
-        ],
-        Aion: [
-          "períodos","engano","3·6·9","registro","anota","anotar","mano","portal369","triângulo","reflexo","fractal","completa","gera","campos","nfrequência","mago","integrados","transition","editor","página","isso","mistério","use","cuida","save","ez","ordenadas","local","hidrogênio","readme","detectar","formas","bllue"
-        ]
-      };
+    const responseContainer = $('#response');
+    const responseList   = $('#responseList');
+    let   bootBlock      = $('#bootBlock');
+    const bootText       = $('#bootText');
+    const footerHint     = $('#footerHint');
+    const copyBtn        = $('#copyBtn');
+    const pasteBtn       = $('#pasteBtn');
+    const parserBtn      = $('#parserBtn');
+    const parserFile     = $('#parserFile');
+    const voiceConfigBtn = $('#voiceConfigBtn');
+    const voiceConfigFile= $('#voiceConfigFile');
+    const toggleLoginBtn = $('#toggleLoginBtn');
+    const loginBox       = $('#loginBox');
+    const loginForm      = $('#loginForm');
+    const userNameInput  = $('#userName');
+    const assistantInput = $('#assistantInput');
+    const assistantNameEl= $('#assistantName');
+    const userInput      = $('#userInput');
+    const sendBtn        = $('#sendBtn');
+    const themeToggleBtn = $('#themeToggle');
+    const voiceBtn       = $('#voiceBtn');
 
-      function detectArchetype(text){
-        if(!text) return null;
-        const t = text.toLowerCase();
-        let best = null;
-        let bestScore = 0;
-        for(const [name, words] of Object.entries(ARCHETYPE_KEYWORDS)){
-          let score = 0;
-          const nameToken = name.toLowerCase();
-          if(t.includes(nameToken)) score += 20;
-          if(Array.isArray(words)){
-            for(const w of words){
-              if(!w) continue;
-              const kw = String(w).toLowerCase();
-              if(kw && t.includes(kw)) score++;
-            }
-          }
-          if(score > bestScore){
-            bestScore = score;
-            best = name;
-          }
+    const iaConfigPanel   = $('#iaConfigPanel');
+    const apiKeyInput     = $('#apiKeyInput');
+    const modelSelect     = $('#modelSelect');
+    const customModelInput= $('#customModelInput');
+    const saveIaConfigBtn = $('#saveIaConfigBtn');
+    const clearIaConfigBtn= $('#clearIaConfigBtn');
+    const iaStatus        = $('#iaStatus');
+    const themeSelect     = $('#themeSelect');
+    const settingsBtn     = $('#toggleSettingsBtn');
+
+    const CONFIG = {
+      API_URL: DEFAULTS.API_URL,
+      MODEL: DEFAULTS.MODEL,
+      TEMP: DEFAULTS.TEMP,
+      CHUNK_SIZE: DEFAULTS.CHUNK_SIZE,
+      AUTH_TOKEN: ''
+    };
+
+    const ARCHETYPE_KEYWORDS = {
+      Atlas:[ "atlas","fluxo","estrutura","mapa","organização","árvore","checklist","planejamento" ],
+      Nova:[ "nova","criar","visão","protótipo","protótipos","imaginar","descobrir","ativar","estado" ],
+      Vitalis:[ "vitalis","corpo","energia","respiração","ritmo","h3o2","vitalidade","hidratação" ],
+      Pulse:[ "pulse","tempo","ciclo","ciclos","batida","pulsar","ritmo","loop","síncrono" ],
+      Artemis:[ "artemis","foco","focada","mira","precisão","aventura","explorar","exploração" ],
+      Serena:[ "serena","calma","acolhimento","cuidar","suave","pausa","repouso","apoio" ],
+      Kaos:[ "kaos","quebra","ruptura","caos","provocação","virada","rebeldia","desalinho" ],
+      Genus:[ "genus","padrão","padrões","tabela","referência","documento","estrutura lógica" ],
+      Lumine:[ "lumine","luz","cores","estética","beleza","design","gradiente","iluminar" ],
+      Rhea:[ "rhea","guia","guia","cuidado","conectar","empatia","acompanhamento" ],
+      Solus:[ "solus","unidade","sozinho","inteiro","solo","núcleo","essência" ],
+      Aion:[ "aion","tempo longo","ciclos grandes","eras","fractal","registro","eterno" ]
+    };
+
+    let conversation = [];
+    let isCollapsed = false;
+    let initialized = false;
+    const responseBlocks = [];
+
+    function escapeHtml(s){
+      return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;');
+    }
+
+    function scrollToBottom(){
+      if (!responseContainer) return;
+      responseContainer.scrollTo({ top: responseContainer.scrollHeight, behavior:'smooth' });
+      try{
+        window.scrollTo({ top: document.body.scrollHeight, behavior:'smooth' });
+      }catch(e){}
+    }
+
+    function loadIaConfigFromStorage(){
+      const key   = localStorage.getItem(STORAGE.OPENROUTER_KEY) || '';
+      const model = localStorage.getItem(STORAGE.OPENROUTER_MODEL) || DEFAULTS.MODEL;
+
+      CONFIG.API_URL = DEFAULTS.API_URL;
+      CONFIG.MODEL   = model || DEFAULTS.MODEL;
+      CONFIG.TEMP    = DEFAULTS.TEMP;
+      CONFIG.CHUNK_SIZE = DEFAULTS.CHUNK_SIZE;
+      CONFIG.AUTH_TOKEN = key ? 'Bearer ' + key : '';
+
+      apiKeyInput.value = key;
+      let optionFound = false;
+      Array.from(modelSelect.options).forEach(opt=>{
+        if (opt.value === model) {
+          optionFound = true;
+          modelSelect.value = model;
         }
-        return bestScore > 0 ? best : null;
+      });
+      if (!optionFound) {
+        modelSelect.value = 'custom';
+        customModelInput.value = model;
       }
 
-      const CONFIG = {
-        API_URL: DEFAULTS.API_URL,
-        MODEL: DEFAULTS.MODEL,
-        TEMP: DEFAULTS.TEMP,
-        CHUNK_SIZE: DEFAULTS.CHUNK_SIZE,
-        AUTH_TOKEN: ''
-      };
-
-      const synth = window.speechSynthesis || null;
-      let currentUtterance = null;
-      let availableVoices = [];
-      let voiceConfig = null;
-      let currentVoiceKey = 'default';
-
-      if (synth) {
-        const loadVoices = () => {
-          try { availableVoices = synth.getVoices() || []; }
-          catch(e){ availableVoices = []; }
-        };
-        loadVoices();
-        synth.onvoiceschanged = loadVoices;
-      }
-
-      const $  = sel => document.querySelector(sel);
-      const $$ = sel => Array.from(document.querySelectorAll(sel));
-
-      const responseContainer = $('#response');
-      const responseList   = $('#responseList');
-      let   bootBlock      = $('#bootBlock');
-      const bootText       = $('#bootText');
-      const footerHint     = $('#footerHint');
-      const copyBtn        = $('#copyBtn');
-      const pasteBtn       = $('#pasteBtn');
-      const parserBtn      = $('#parserBtn');
-      const parserFile     = $('#parserFile');
-      const voiceConfigBtn = $('#voiceConfigBtn');
-      const voiceConfigFile= $('#voiceConfigFile');
-      const toggleLoginBtn = $('#toggleLoginBtn');
-      const loginBox       = $('#loginBox');
-      const loginForm      = $('#loginForm');
-      const userNameInput  = $('#userName');
-      const assistantInput = $('#assistantInput');
-      const assistantNameEl= $('#assistantName');
-      const userInput      = $('#userInput');
-      const sendBtn        = $('#sendBtn');
-      const themeToggleBtn = $('#themeToggle');
-      const voiceBtn       = $('#voiceBtn');
-
-      const iaConfigPanel   = $('#iaConfigPanel');
-      const apiKeyInput     = $('#apiKeyInput');
-      const modelSelect     = $('#modelSelect');
-      const customModelInput= $('#customModelInput');
-      const saveIaConfigBtn = $('#saveIaConfigBtn');
-      const clearIaConfigBtn= $('#clearIaConfigBtn');
-      const iaStatus        = $('#iaStatus');
-      const themeSelect     = $('#themeSelect');
-      const settingsBtn     = $('#toggleSettingsBtn');
-
-      let conversation = [];
-      let isCollapsed = false;
-      let initialized = false;
-
-      const responseBlocks = [];
-
-      function escapeHtml(s) {
-        return String(s)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
-      }
-
-      function scrollToBottom() {
-        if (!responseContainer) return;
-        responseContainer.scrollTo({
-          top: responseContainer.scrollHeight,
-          behavior: 'smooth'
-        });
-        try {
-          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        } catch(e){}
-      }
-
-      function loadIaConfigFromStorage() {
-        const key   = localStorage.getItem(STORAGE.OPENROUTER_KEY) || '';
-        const model = localStorage.getItem(STORAGE.OPENROUTER_MODEL) || DEFAULTS.MODEL;
-
-        CONFIG.API_URL = DEFAULTS.API_URL;
-        CONFIG.MODEL   = model || DEFAULTS.MODEL;
-        CONFIG.TEMP    = DEFAULTS.TEMP;
-        CONFIG.CHUNK_SIZE = DEFAULTS.CHUNK_SIZE;
-        CONFIG.AUTH_TOKEN = key ? 'Bearer ' + key : '';
-
-        apiKeyInput.value = key;
-        let optionFound = false;
-        Array.from(modelSelect.options).forEach(opt => {
-          if (opt.value === model) {
-            optionFound = true;
-            modelSelect.value = model;
-          }
-        });
-        if (!optionFound) {
-          modelSelect.value = 'custom';
-          customModelInput.value = model;
-        }
-
-        if (!key) {
-          iaStatus.textContent = 'Nenhuma chave salva ainda.';
-          iaStatus.className = 'ia-status warn';
-        } else {
-          iaStatus.textContent = 'Config carregada. Pronto para chamar a IA.';
-          iaStatus.className = 'ia-status ok';
-        }
-      }
-
-      function saveIaConfig() {
-        let key = apiKeyInput.value.trim();
-        let model = modelSelect.value;
-
-        if (model === 'custom') {
-          const custom = customModelInput.value.trim();
-          if (custom) model = custom;
-        }
-        if (!model) model = DEFAULTS.MODEL;
-
-        if (!key) {
-          iaStatus.textContent = 'Cole uma chave sk-or-... para salvar.';
-          iaStatus.className = 'ia-status warn';
-          return;
-        }
-
-        localStorage.setItem(STORAGE.OPENROUTER_KEY, key);
-        localStorage.setItem(STORAGE.OPENROUTER_MODEL, model);
-
-        CONFIG.AUTH_TOKEN = 'Bearer ' + key;
-        CONFIG.MODEL = model;
-
-        iaStatus.textContent = 'Config salva com sucesso.';
+      if (!key) {
+        iaStatus.textContent = 'Nenhuma chave salva ainda.';
+        iaStatus.className = 'ia-status warn';
+      } else {
+        iaStatus.textContent = 'Config carregada. Pronto para chamar a IA.';
         iaStatus.className = 'ia-status ok';
       }
+    }
 
-      function clearIaConfig() {
-        localStorage.removeItem(STORAGE.OPENROUTER_KEY);
-        localStorage.removeItem(STORAGE.OPENROUTER_MODEL);
-        apiKeyInput.value = '';
-        customModelInput.value = '';
-        modelSelect.value = DEFAULTS.MODEL;
-        CONFIG.AUTH_TOKEN = '';
-        CONFIG.MODEL = DEFAULTS.MODEL;
-        iaStatus.textContent = 'Config limpa. Defina novamente antes de enviar.';
+    function saveIaConfig(){
+      let key = apiKeyInput.value.trim();
+      let model = modelSelect.value;
+
+      if (model === 'custom') {
+        const custom = customModelInput.value.trim();
+        if (custom) model = custom;
+      }
+      if (!model) model = DEFAULTS.MODEL;
+
+      if (!key) {
+        iaStatus.textContent = 'Cole uma chave sk-or-... para salvar.';
         iaStatus.className = 'ia-status warn';
+        return;
       }
 
-      saveIaConfigBtn.addEventListener('click', saveIaConfig);
-      clearIaConfigBtn.addEventListener('click', clearIaConfig);
+      localStorage.setItem(STORAGE.OPENROUTER_KEY, key);
+      localStorage.setItem(STORAGE.OPENROUTER_MODEL, model);
 
-      function applyTheme(theme) {
-        document.body.dataset.theme = theme;
-        localStorage.setItem(STORAGE.THEME, theme);
-        if (themeSelect) themeSelect.value = theme;
-      }
-      function restoreTheme() {
-        const theme = localStorage.getItem(STORAGE.THEME) || 'dark';
-        applyTheme(theme);
-      }
-      if (themeSelect) {
-        themeSelect.addEventListener('change', () => {
-          applyTheme(themeSelect.value || 'dark');
-        });
-      }
-      themeToggleBtn.addEventListener('click', () => {
-        const current = document.body.dataset.theme || 'dark';
-        const cycle = ['dark','vibe','medium'];
-        const idx = cycle.indexOf(current);
-        const next = cycle[(idx + 1) % cycle.length];
-        applyTheme(next);
+      CONFIG.AUTH_TOKEN = 'Bearer ' + key;
+      CONFIG.MODEL = model;
+
+      iaStatus.textContent = 'Config salva com sucesso.';
+      iaStatus.className = 'ia-status ok';
+    }
+
+    function clearIaConfig(){
+      localStorage.removeItem(STORAGE.OPENROUTER_KEY);
+      localStorage.removeItem(STORAGE.OPENROUTER_MODEL);
+      apiKeyInput.value = '';
+      customModelInput.value = '';
+      modelSelect.value = DEFAULTS.MODEL;
+      CONFIG.AUTH_TOKEN = '';
+      CONFIG.MODEL = DEFAULTS.MODEL;
+      iaStatus.textContent = 'Config limpa. Defina novamente antes de enviar.';
+      iaStatus.className = 'ia-status warn';
+    }
+
+    saveIaConfigBtn.addEventListener('click', saveIaConfig);
+    clearIaConfigBtn.addEventListener('click', clearIaConfig);
+
+    function applyTheme(theme){
+      document.body.dataset.theme = theme;
+      localStorage.setItem(STORAGE.THEME, theme);
+      if (themeSelect) themeSelect.value = theme;
+    }
+    function restoreTheme(){
+      const theme = localStorage.getItem(STORAGE.THEME) || 'dark';
+      applyTheme(theme);
+    }
+    if (themeSelect){
+      themeSelect.addEventListener('change', ()=>{
+        applyTheme(themeSelect.value || 'dark');
       });
+    }
+    themeToggleBtn.addEventListener('click', ()=>{
+      const current = document.body.dataset.theme || 'dark';
+      const cycle = ['dark','vibe','medium'];
+      const idx = cycle.indexOf(current);
+      const next = cycle[(idx+1) % cycle.length];
+      applyTheme(next);
+    });
 
-      function restoreNames() {
-        const user = localStorage.getItem(STORAGE.USER_NAME) || '';
-        const asst = localStorage.getItem(STORAGE.ASSISTANT_NAME) || 'Dual.Infodose · Cinemático';
-        if (user) userNameInput.value = user;
-        if (asst) assistantInput.value = asst;
-        assistantNameEl.textContent = asst;
+    function restoreNames(){
+      const user = localStorage.getItem(STORAGE.USER_NAME) || '';
+      const asst = localStorage.getItem(STORAGE.ASSISTANT_NAME) || 'Dual.Infodose · Cinemático';
+      if (user) userNameInput.value = user;
+      if (asst) assistantInput.value = asst;
+      assistantNameEl.textContent = asst;
+    }
+
+    toggleLoginBtn.addEventListener('click', ()=>{
+      loginBox.classList.toggle('active');
+    });
+
+    loginForm.addEventListener('submit',(ev)=>{
+      ev.preventDefault();
+      const user = userNameInput.value.trim() || 'Você';
+      const asst = assistantInput.value.trim() || 'Dual.Infodose';
+      localStorage.setItem(STORAGE.USER_NAME, user);
+      localStorage.setItem(STORAGE.ASSISTANT_NAME, asst);
+      assistantNameEl.textContent = asst;
+      loginBox.classList.remove('active');
+      conversation.unshift({
+        role:'system',
+        content:`O usuário se chama ${user}. O assistente se apresenta como ${asst}. Responda com carinho cinematográfico.`
+      });
+    });
+
+    function setCollapsed(state){
+      isCollapsed = state;
+      if (isCollapsed) responseContainer.classList.add('collapsed');
+      else responseContainer.classList.remove('collapsed');
+    }
+    footerHint.addEventListener('click', ()=>{
+      setCollapsed(!isCollapsed);
+    });
+
+    if (settingsBtn && iaConfigPanel){
+      settingsBtn.addEventListener('click', ()=>{
+        iaConfigPanel.classList.toggle('active');
+      });
+    }
+
+    parserBtn.addEventListener('click', ()=>{
+      parserFile.value = '';
+      parserFile.click();
+    });
+
+    parserFile.addEventListener('change', ()=>{
+      const file = parserFile.files && parserFile.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const content = reader.result || '';
+        const name = file.name.toLowerCase();
+        if (name.endsWith('.css')){
+          const style = document.createElement('style');
+          style.textContent = content;
+          document.head.appendChild(style);
+          footerHint.textContent = 'CSS extra de renderização aplicado.';
+        } else if (name.endsWith('.js')){
+          try{
+            const fn = new Function('window','document', content);
+            fn(window,document);
+            footerHint.textContent = 'Parser JS carregado. Se definiu window.customMarkdownParser(text), já está ativo.';
+          }catch(e){
+            console.error('Erro ao avaliar parser JS:', e);
+            footerHint.textContent = 'Erro ao carregar parser JS. Veja o console.';
+          }
+        } else {
+          footerHint.textContent = 'Formato não suportado. Use .js ou .css.';
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    function updateVoiceOrbLabel(){
+      if (!voiceConfigBtn) return;
+      const label = currentVoiceKey || 'voz';
+      voiceConfigBtn.title = voiceConfig
+        ? 'Voz atual: ' + label + ' (clique para alternar)'
+        : 'Carregar / alternar vozes de arquétipos';
+    }
+
+    function loadVoiceConfigFromStorage(){
+      try{
+        const raw = localStorage.getItem(STORAGE.VOICE_CONFIG);
+        if (!raw) return;
+        voiceConfig = JSON.parse(raw);
+        const keys = Object.keys(voiceConfig || {});
+        if (!keys.length) return;
+        const storedKey = localStorage.getItem(STORAGE.VOICE_CURRENT_KEY);
+        const candidate =
+          (storedKey && keys.includes(storedKey)) ? storedKey :
+          (voiceConfig.current && keys.includes(voiceConfig.current)) ? voiceConfig.current :
+          (keys.includes('default') ? 'default' : keys[0]);
+        currentVoiceKey = candidate;
+        updateVoiceOrbLabel();
+      }catch(e){
+        console.warn('Erro ao carregar config de voz:', e);
+        voiceConfig = null;
       }
+    }
 
-      toggleLoginBtn.addEventListener('click', () => {
-        loginBox.classList.toggle('active');
+    if (voiceConfigBtn){
+      voiceConfigBtn.addEventListener('click', ()=>{
+        if (!voiceConfig){
+          if (voiceConfigFile) voiceConfigFile.click();
+          return;
+        }
+        const keys = Object.keys(voiceConfig).filter(k=>k!=='current');
+        if (!keys.length) return;
+        const idx = keys.indexOf(currentVoiceKey);
+        const nextKey = keys[(idx + 1 + keys.length) % keys.length];
+        currentVoiceKey = nextKey;
+        localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
+        updateVoiceOrbLabel();
+        footerHint.textContent = 'Voz ativa: ' + currentVoiceKey;
       });
+    }
 
-      loginForm.addEventListener('submit', (ev) => {
-        ev.preventDefault();
-        const user = userNameInput.value.trim() || 'Você';
-        const asst = assistantInput.value.trim() || 'Dual.Infodose';
-        localStorage.setItem(STORAGE.USER_NAME, user);
-        localStorage.setItem(STORAGE.ASSISTANT_NAME, asst);
-        assistantNameEl.textContent = asst;
-        loginBox.classList.remove('active');
-        conversation.unshift({
-          role: 'system',
-          content: `O usuário se chama ${user}. O assistente se apresenta como ${asst}. Responda com carinho cinematográfico.`
-        });
-      });
-
-      function setCollapsed(state) {
-        isCollapsed = state;
-        if (isCollapsed) responseContainer.classList.add('collapsed');
-        else responseContainer.classList.remove('collapsed');
-      }
-
-      footerHint.addEventListener('click', () => {
-        setCollapsed(!isCollapsed);
-      });
-
-      if (settingsBtn && iaConfigPanel) {
-        settingsBtn.addEventListener('click', () => {
-          iaConfigPanel.classList.toggle('active');
-        });
-      }
-
-      parserBtn.addEventListener('click', () => {
-        parserFile.value = '';
-        parserFile.click();
-      });
-
-      parserFile.addEventListener('change', () => {
-        const file = parserFile.files && parserFile.files[0];
+    if (voiceConfigFile){
+      voiceConfigFile.addEventListener('change', ()=>{
+        const file = voiceConfigFile.files && voiceConfigFile.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = () => {
-          const content = reader.result || '';
-          const name = file.name.toLowerCase();
-          if (name.endsWith('.css')) {
-            const style = document.createElement('style');
-            style.textContent = content;
-            document.head.appendChild(style);
-            footerHint.textContent = 'CSS extra de renderização aplicado.';
-          } else if (name.endsWith('.js')) {
-            try {
-              const fn = new Function('window','document', content);
-              fn(window, document);
-              footerHint.textContent = 'Parser JS carregado. Se definiu window.customMarkdownParser(text), já está ativo.';
-            } catch (e) {
-              console.error('Erro ao avaliar parser JS:', e);
-              footerHint.textContent = 'Erro ao carregar parser JS. Veja o console para detalhes.';
+        reader.onload = ()=>{
+          try{
+            const json = JSON.parse(reader.result || '{}');
+            if (!json || typeof json !== 'object'){
+              footerHint.textContent = 'JSON inválido de vozes.';
+              return;
             }
-          } else {
-            footerHint.textContent = 'Formato não suportado. Use .js ou .css.';
+            voiceConfig = json;
+            const keys = Object.keys(voiceConfig);
+            if (!keys.length){
+              footerHint.textContent = 'JSON de vozes vazio.';
+              return;
+            }
+            const candidate =
+              (voiceConfig.current && keys.includes(voiceConfig.current)) ? voiceConfig.current :
+              (keys.includes('default') ? 'default' : keys[0]);
+            currentVoiceKey = candidate;
+            localStorage.setItem(STORAGE.VOICE_CONFIG, JSON.stringify(voiceConfig));
+            localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
+            updateVoiceOrbLabel();
+            footerHint.textContent = 'Config de vozes carregada: ' + keys.join(', ');
+          }catch(e){
+            console.error('Erro ao ler JSON de vozes:', e);
+            footerHint.textContent = 'Erro ao carregar JSON de vozes. Veja o console.';
           }
         };
         reader.readAsText(file);
       });
+    }
 
-      function updateVoiceOrbLabel() {
-        if (!voiceConfigBtn) return;
-        const label = currentVoiceKey || 'voz';
-        voiceConfigBtn.title = voiceConfig
-          ? 'Voz atual: ' + label + ' (clique para alternar)'
-          : 'Carregar / alternar vozes de arquétipos';
+    function buildTabelistaHtml(rawBlock){
+      const lines = String(rawBlock).trim().split('\n').filter(l=>l.trim().startsWith('|'));
+      if (lines.length < 3){
+        return '<pre>' + escapeHtml(rawBlock).replace(/\n/g,'<br/>') + '</pre>';
       }
+      function cells(line){
+        return line.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+      }
+      const headerCells = cells(lines[0]);
+      const headerText = headerCells.join(' | ');
+      const secondCells = cells(lines[1]);
+      const isSeparator = secondCells.every(c=>/^:?-+:?$/.test(c));
+      const subText = isSeparator ? '' : secondCells.join(' | ');
+      const dataLines = lines.slice(isSeparator ? 2 : 1);
+      let html = '<div class="md-tabelista">';
+      html += '<div class="tbl-head">'+escapeHtml(headerText)+'</div>';
+      if (subText) html += '<div class="tbl-sub">'+escapeHtml(subText)+'</div>';
+      html += '<ul>';
+      dataLines.forEach(line=>{
+        const cols = cells(line);
+        if (!cols.length) return;
+        const col1 = escapeHtml(cols[0]);
+        const rest = cols.slice(1).map((c,idx)=>{
+          const cls = 'tbl-col'+(idx+2);
+          if (idx===0) return '<span class="'+cls+'">('+escapeHtml(c)+')</span>';
+          return '<span class="'+cls+'">'+escapeHtml(c)+'</span>';
+        }).join(' | ');
+        html += '<li><span class="tbl-col1">'+col1+'</span>';
+        if (rest) html += ' | '+rest;
+        html += '</li>';
+      });
+      html += '</ul></div>';
+      return html;
+    }
 
-      function loadVoiceConfigFromStorage() {
-        try {
-          const raw = localStorage.getItem(STORAGE.VOICE_CONFIG);
-          if (!raw) return;
-          voiceConfig = JSON.parse(raw);
-          const keys = Object.keys(voiceConfig || {});
-          if (!keys.length) return;
-          const storedKey = localStorage.getItem(STORAGE.VOICE_CURRENT_KEY);
-          const candidate =
-            (storedKey && keys.includes(storedKey)) ? storedKey :
-            (voiceConfig.current && keys.includes(voiceConfig.current)) ? voiceConfig.current :
-            (keys.includes('default') ? 'default' : keys[0]);
-          currentVoiceKey = candidate;
-          updateVoiceOrbLabel();
-        } catch(e) {
-          console.warn('Erro ao carregar config de voz:', e);
-          voiceConfig = null;
+    function parseMarkdownBasic(rawText){
+      if (!rawText) return '';
+      if (typeof window.customMarkdownParser === 'function'){
+        try{
+          const html = window.customMarkdownParser(rawText);
+          if (typeof html === 'string') return html;
+        }catch(e){
+          console.warn('customMarkdownParser falhou, usando parser interno.', e);
         }
       }
+      let text = String(rawText);
 
-      if (voiceConfigBtn) {
-        voiceConfigBtn.addEventListener('click', () => {
-          if (!voiceConfig) {
-            if (voiceConfigFile) voiceConfigFile.click();
-            return;
-          }
-          const keys = Object.keys(voiceConfig).filter(k => k !== 'current');
-          if (!keys.length) return;
-          const idx = keys.indexOf(currentVoiceKey);
-          const nextKey = keys[(idx + 1 + keys.length) % keys.length];
-          currentVoiceKey = nextKey;
-          localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
-          updateVoiceOrbLabel();
-          footerHint.textContent = 'Voz ativa: ' + currentVoiceKey;
-        });
-      }
-
-      if (voiceConfigFile) {
-        voiceConfigFile.addEventListener('change', () => {
-          const file = voiceConfigFile.files && voiceConfigFile.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = () => {
-            try {
-              const json = JSON.parse(reader.result || '{}');
-              if (!json || typeof json !== 'object') {
-                footerHint.textContent = 'JSON inválido de vozes.';
-                return;
-              }
-              voiceConfig = json;
-              const keys = Object.keys(voiceConfig);
-              if (!keys.length) {
-                footerHint.textContent = 'JSON de vozes vazio.';
-                return;
-              }
-              const candidate =
-                (voiceConfig.current && keys.includes(voiceConfig.current)) ? voiceConfig.current :
-                (keys.includes('default') ? 'default' : keys[0]);
-              currentVoiceKey = candidate;
-              localStorage.setItem(STORAGE.VOICE_CONFIG, JSON.stringify(voiceConfig));
-              localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
-              updateVoiceOrbLabel();
-              footerHint.textContent = 'Config de vozes carregada: ' + keys.join(', ');
-            } catch(e) {
-              console.error('Erro ao ler JSON de vozes:', e);
-              footerHint.textContent = 'Erro ao carregar JSON de vozes. Veja o console.';
-            }
-          };
-          reader.readAsText(file);
-        });
-      }
-
-      function parseMarkdownBasic(rawText) {
-        if (!rawText) return '';
-        if (typeof window.customMarkdownParser === 'function') {
-          try {
-            const html = window.customMarkdownParser(rawText);
-            if (typeof html === 'string') return html;
-          } catch (e) {
-            console.warn('customMarkdownParser falhou, usando parser interno.', e);
-          }
-        }
-        let text = escapeHtml(rawText);
-        text = text.replace(/\r\n/g, '\n');
-        text = text.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
-        text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-        text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-        text = text.replace(/```([\s\S]*?)```/g, function(_m, code){
-          return '<pre><code>' + code.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</code></pre>';
-        });
-        text = text.replace(/^### (.*)$/gim, '<h3>$1</h3>');
-        text = text.replace(/^## (.*)$/gim, '<h2>$1</h2>');
-        text = text.replace(/^# (.*)$/gim, '<h1>$1</h1>');
-        text = text.replace(/^> (.*)$/gim, '<blockquote>$1</blockquote>');
-        text = text.replace(/^\s*[-*+] (.*)$/gim, '<li>$1</li>');
-        text = text.replace(/(<li>.*<\/li>)/gims, '<ul>$1</ul>');
-        return text;
-      }
-
-      function splitResponseCinematic(text) {
-        const parts = text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
-        if (!parts.length) {
-          return [{
-            kind: 'middle',
-            html: '<p>' + parseMarkdownBasic(text).replace(/\n/g, '<br/>') + '</p>'
-          }];
-        }
-        const blocks = [];
-        parts.forEach((p, idx) => {
-          const kind = idx === 0 ? 'intro' : (idx === parts.length - 1 ? 'ending' : 'middle');
-          const html = '<p>' + parseMarkdownBasic(p).replace(/\n/g, '<br/>') + '</p>';
-          blocks.push({ kind, html });
-        });
-        return blocks.slice(0, 3);
-      }
-
-      function getBlockText(block) {
-        if (!block) return '';
-        const raw = block.innerHTML
-          .replace(/<button[^>]*class="block-tts-btn"[^>]*>[\s\S]*?<\/button>/gi, '')
-          .replace(/<span[^>]*class="archetype-badge"[^>]*>[\s\S]*?<\/span>/gi, '')
-          .replace(/<br\s*\/?>/gi, '\n')
-          .replace(/<\/p>/gi, '\n\n')
-          .replace(/<li>/gi, '- ')
-          .replace(/<\/li>/gi, '\n')
-          .replace(/<\/h[1-6]>/gi, '\n')
-          .replace(/<[^>]+>/g, '');
-        return raw.trim();
-      }
-
-      function markBlockArchetype(div, archeName){
-        if(!div || !archeName) return;
-        div.dataset.archetype = archeName;
-        let badge = div.querySelector('.archetype-badge');
-        if(!badge){
-          badge = document.createElement('span');
-          badge.className = 'archetype-badge';
-          div.appendChild(badge);
-        }
-        badge.textContent = archeName;
-      }
-
-      function speakBlock(block) {
-        if (!synth) {
-          footerHint.textContent = 'Seu navegador não suporta voz (SpeechSynthesis).';
-          return;
-        }
-        if (!block) {
-          footerHint.textContent = 'Nenhum bloco selecionado.';
-          return;
-        }
-
-        const text = getBlockText(block);
-        if (!text) {
-          footerHint.textContent = 'Nada para ler nesse bloco.';
-          return;
-        }
-
-        const detectedArch = detectArchetype(text);
-        if (detectedArch) {
-          currentVoiceKey = detectedArch;
-          localStorage.setItem('ARCHETYPE_ACTIVE', detectedArch);
-          localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
-          markBlockArchetype(block, detectedArch);
-          updateVoiceOrbLabel();
-        }
-
-        try {
-          block.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-        } catch(e){}
-        scrollToBottom();
-
-        if (synth.speaking) {
-          synth.cancel();
-          voiceBtn.classList.remove('speaking');
-        }
-
-        const utter = new SpeechSynthesisUtterance(text);
-
-        let profile = null;
-        if (voiceConfig) {
-          if (currentVoiceKey && voiceConfig[currentVoiceKey]) {
-            profile = voiceConfig[currentVoiceKey];
-          } else if (voiceConfig.default) {
-            profile = voiceConfig.default;
-          }
-        }
-
-        const lang  = profile && profile.lang  ? profile.lang  : 'pt-BR';
-        const rate  = (profile && typeof profile.rate  === 'number') ? profile.rate  : 1;
-        const pitch = (profile && typeof profile.pitch === 'number') ? profile.pitch : 1;
-        const vol   = (profile && typeof profile.volume === 'number') ? profile.volume : 1;
-
-        utter.lang   = lang;
-        utter.rate   = rate;
-        utter.pitch  = pitch;
-        utter.volume = vol;
-
-        if (profile && profile.voiceHint && availableVoices && availableVoices.length) {
-          const hint = String(profile.voiceHint).toLowerCase();
-          let chosen = availableVoices.find(v => v.name.toLowerCase().includes(hint));
-          if (!chosen) chosen = availableVoices.find(v => v.lang === lang) || null;
-          if (chosen) utter.voice = chosen;
-        }
-
-        currentUtterance = utter;
-
-        utter.onstart = () => {
-          voiceBtn.classList.add('speaking');
-          footerHint.textContent = 'Lendo o bloco em voz alta.';
-        };
-        utter.onend = () => {
-          voiceBtn.classList.remove('speaking');
-          footerHint.textContent = 'Leitura concluída.';
-        };
-        utter.onerror = () => {
-          voiceBtn.classList.remove('speaking');
-          footerHint.textContent = 'Erro ao tentar falar. Veja o console se estiver debugando.';
-        };
-
-        synth.cancel();
-        synth.speak(utter);
-      }
-
-      function speakLastBlock() {
-        if (!responseBlocks.length) return;
-        const last = responseBlocks[responseBlocks.length - 1];
-        speakBlock(last);
-      }
-
-      voiceBtn.addEventListener('click', () => {
-        speakLastBlock();
+      const tableMap = {};
+      let tableIndex = 0;
+      text = text.replace(/((?:^\|.*\n?){3,})/gm,(match)=>{
+        const id = '@@TABLE_'+(tableIndex++)+'@@';
+        tableMap[id] = buildTabelistaHtml(match);
+        return id;
       });
 
-      function onBlockClick(ev) {
-        const block = ev.currentTarget;
-        block.classList.add('clicked');
-        setTimeout(() => block.classList.remove('clicked'), 350);
-        const state = block.dataset.state || 'idle';
-        if (state === 'idle' || state === 'sent') {
-          block.dataset.state = 'spoken';
-          speakBlock(block);
-        } else if (state === 'spoken') {
-          block.dataset.state = 'sent';
-          const text = getBlockText(block);
-          if (text) {
-            sendPrompt(text, { fromBlock: true });
-          }
-        }
-      }
+      text = escapeHtml(text);
+      text = text.replace(/\r\n/g,'\n');
 
-      function addTtsButtonToBlock(div) {
-        if (!div || div.querySelector('.block-tts-btn')) return;
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'block-tts-btn';
-        btn.textContent = '◎';
-        btn.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          speakBlock(div);
+      // botões [[btn:acao|Rótulo]]
+      text = text.replace(/\[\[btn:([^\]|]+)(?:\|([^\]]+))?\]\]/g, function(_m,action,label){
+        const act = escapeHtml(action.trim());
+        const lab = escapeHtml((label && label.trim()) || action.trim());
+        return '<button class="lv-btn" data-action="'+act+'">'+lab+'</button>';
+      });
+
+      // callouts ::info texto
+      text = text.replace(/^::(info|warn|success|question|aside)\s+(.*)$/gm,
+        '<div class="lv-callout lv-$1">$2</div>');
+
+      text = text.replace(/\*\*\*([^*]+)\*\*\*/g,'<strong><em>$1</em></strong>');
+      text = text.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+      text = text.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+      text = text.replace(/`([^`]+)`/g,'<code>$1</code>');
+
+      text = text.replace(/```([\s\S]*?)```/g,function(_m,code){
+        return '<pre><code>' + code.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</code></pre>';
+      });
+
+      text = text.replace(/^### (.*)$/gim,'<h3>$1</h3>');
+      text = text.replace(/^## (.*)$/gim,'<h2>$1</h2>');
+      text = text.replace(/^# (.*)$/gim,'<h1>$1</h1>');
+      text = text.replace(/^> (.*)$/gim,'<blockquote>$1</blockquote>');
+      text = text.replace(/^\s*[-*+] (.*)$/gim,'<li>$1</li>');
+      text = text.replace(/(<li>.*<\/li>)/gims,'<ul>$1</ul>');
+
+      Object.keys(tableMap).forEach(id=>{
+        text = text.replace(id, tableMap[id]);
+      });
+
+      return text;
+    }
+
+    function splitResponseCinematic(text){
+      const parts = text.split(/\n{2,}/).map(p=>p.trim()).filter(Boolean);
+      if (!parts.length){
+        return [{
+          kind:'middle',
+          html:'<p>'+parseMarkdownBasic(text).replace(/\n/g,'<br/>')+'</p>'
+        }];
+      }
+      const blocks = [];
+      parts.forEach((p,idx)=>{
+        const kind = idx===0 ? 'intro' : (idx===parts.length-1 ? 'ending' : 'middle');
+        const html = '<p>'+parseMarkdownBasic(p).replace(/\n/g,'<br/>')+'</p>';
+        blocks.push({ kind, html });
+      });
+      return blocks.slice(0,3);
+    }
+
+    function getBlockText(block){
+      if (!block) return '';
+      const raw = block.innerHTML
+        .replace(/<button[^>]*class="block-tts-btn"[^>]*>[\s\S]*?<\/button>/gi,'')
+        .replace(/<span[^>]*class="archetype-badge"[^>]*>[\s\S]*?<\/span>/gi,'')
+        .replace(/<br\s*\/?>/gi,'\n')
+        .replace(/<\/p>/gi,'\n\n')
+        .replace(/<\/h[1-6]>/gi,'\n')
+        .replace(/<li>/gi,'- ')
+        .replace(/<\/li>/gi,'\n')
+        .replace(/<[^>]+>/g,'');
+      return raw.trim();
+    }
+
+    function detectArchetypeFromText(text){
+      if (!text) return null;
+      const t = text.toLowerCase();
+      let best = null;
+      let bestScore = 0;
+      Object.entries(ARCHETYPE_KEYWORDS).forEach(([name,words])=>{
+        let score = 0;
+        if (t.includes(name.toLowerCase())) score += 10;
+        words.forEach(w=>{
+          if (t.includes(String(w).toLowerCase())) score++;
         });
-        div.appendChild(btn);
+        if (score > bestScore){
+          bestScore = score;
+          best = name;
+        }
+      });
+      return bestScore > 0 ? best : null;
+    }
+
+    function markBlockArchetype(div, archeName){
+      if (!div || !archeName) return;
+      div.dataset.archetype = archeName;
+      let badge = div.querySelector('.archetype-badge');
+      if (!badge){
+        badge = document.createElement('span');
+        badge.className = 'archetype-badge';
+        div.appendChild(badge);
+      }
+      badge.textContent = archeName;
+    }
+
+    function speakBlock(block){
+      if (!synth){
+        footerHint.textContent = 'Seu navegador não suporta voz (SpeechSynthesis).';
+        return;
+      }
+      if (!block){
+        footerHint.textContent = 'Nenhum bloco selecionado.';
+        return;
+      }
+      const text = getBlockText(block);
+      if (!text){
+        footerHint.textContent = 'Nada para ler nesse bloco.';
+        return;
       }
 
-      function enhanceBlock(div) {
-        if (!div) return;
-        div.dataset.state = div.dataset.state || 'idle';
-        div.addEventListener('click', onBlockClick);
-        addTtsButtonToBlock(div);
-        const t = getBlockText(div);
-        const arch = detectArchetype(t);
-        if (arch) {
-          markBlockArchetype(div, arch);
-        }
-        if (!responseBlocks.includes(div)) {
-          responseBlocks.push(div);
+      const detectedArch = detectArchetypeFromText(text);
+      if (detectedArch){
+        currentVoiceKey = detectedArch;
+        localStorage.setItem('ARCHETYPE_ACTIVE', detectedArch);
+        localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
+        markBlockArchetype(block, detectedArch);
+        updateVoiceOrbLabel();
+      }
+
+      try{
+        block.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });
+      }catch(e){}
+      scrollToBottom();
+
+      if (synth.speaking){
+        synth.cancel();
+        voiceBtn.classList.remove('speaking');
+      }
+
+      const utter = new SpeechSynthesisUtterance(text);
+
+      let profile = null;
+      if (voiceConfig){
+        if (currentVoiceKey && voiceConfig[currentVoiceKey]){
+          profile = voiceConfig[currentVoiceKey];
+        } else if (voiceConfig.default){
+          profile = voiceConfig.default;
         }
       }
 
-      if (bootBlock) enhanceBlock(bootBlock);
+      const lang  = profile && profile.lang  ? profile.lang  : 'pt-BR';
+      const rate  = (profile && typeof profile.rate  === 'number') ? profile.rate  : 1;
+      const pitch = (profile && typeof profile.pitch === 'number') ? profile.pitch : 1;
+      const vol   = (profile && typeof profile.volume === 'number') ? profile.volume : 1;
 
-      function appendBlocksFromData(blocks) {
-        if (!blocks || !blocks.length) return;
-        if (bootBlock) {
-          bootBlock.remove();
-          bootBlock = null;
-        }
-        blocks.forEach((page) => {
-          const div = document.createElement('div');
-          div.className = 'response-block ' + (page.kind || 'middle');
-          div.innerHTML = page.html;
-          enhanceBlock(div);
-          responseList.appendChild(div);
-        });
-        scrollToBottom();
-        speakLastBlock();
+      utter.lang   = lang;
+      utter.rate   = rate;
+      utter.pitch  = pitch;
+      utter.volume = vol;
+
+      if (profile && profile.voiceHint && availableVoices && availableVoices.length){
+        const hint = String(profile.voiceHint).toLowerCase();
+        let chosen = availableVoices.find(v=>v.name.toLowerCase().includes(hint));
+        if (!chosen) chosen = availableVoices.find(v=>v.lang === lang) || null;
+        if (chosen) utter.voice = chosen;
       }
 
-      function appendUserPulseBlock(text) {
-        if (!text) return;
-        if (bootBlock) {
-          bootBlock.remove();
-          bootBlock = null;
-        }
+      currentUtterance = utter;
+
+      utter.onstart = ()=>{
+        voiceBtn.classList.add('speaking');
+        footerHint.textContent = 'Lendo o bloco em voz alta.';
+      };
+      utter.onend = ()=>{
+        voiceBtn.classList.remove('speaking');
+        footerHint.textContent = 'Leitura concluída.';
+      };
+      utter.onerror = ()=>{
+        voiceBtn.classList.remove('speaking');
+        footerHint.textContent = 'Erro ao tentar falar.';
+      };
+
+      synth.cancel();
+      synth.speak(utter);
+    }
+
+    function speakLastBlock(){
+      if (!responseBlocks.length) return;
+      const last = responseBlocks[responseBlocks.length - 1];
+      speakBlock(last);
+    }
+    voiceBtn.addEventListener('click', ()=>{ speakLastBlock(); });
+
+    function onBlockClick(ev){
+      const block = ev.currentTarget;
+      block.classList.add('clicked');
+      setTimeout(()=>block.classList.remove('clicked'),350);
+      const state = block.dataset.state || 'idle';
+      if (state === 'idle' || state === 'sent'){
+        block.dataset.state = 'spoken';
+        speakBlock(block);
+      } else if (state === 'spoken'){
+        block.dataset.state = 'sent';
+        const text = getBlockText(block);
+        if (text) sendPrompt(text,{ fromBlock:true });
+      }
+    }
+
+    function addTtsButtonToBlock(div){
+      if (!div || div.querySelector('.block-tts-btn')) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'block-tts-btn';
+      btn.textContent = '◎';
+      btn.addEventListener('click',(ev)=>{
+        ev.stopPropagation();
+        speakBlock(div);
+      });
+      div.appendChild(btn);
+    }
+
+    function enhanceBlock(div){
+      if (!div) return;
+      div.dataset.state = div.dataset.state || 'idle';
+      div.addEventListener('click', onBlockClick);
+      addTtsButtonToBlock(div);
+      const t = getBlockText(div);
+      const arch = detectArchetypeFromText(t);
+      if (arch) markBlockArchetype(div, arch);
+      if (!responseBlocks.includes(div)) responseBlocks.push(div);
+    }
+
+    if (bootBlock) enhanceBlock(bootBlock);
+
+    function appendBlocksFromData(blocks){
+      if (!blocks || !blocks.length) return;
+      if (bootBlock){
+        bootBlock.remove();
+        bootBlock = null;
+      }
+      blocks.forEach(page=>{
         const div = document.createElement('div');
-        div.className = 'response-block user-pulse';
-        const html = '<p>' + parseMarkdownBasic(text).replace(/\n/g,'<br/>') + '</p>';
-        div.innerHTML = html;
+        div.className = 'response-block ' + (page.kind || 'middle');
+        div.innerHTML = page.html;
         enhanceBlock(div);
         responseList.appendChild(div);
-        scrollToBottom();
-      }
+      });
+      scrollToBottom();
+      speakLastBlock();
+    }
 
-      async function callOpenRouter(promptText) {
-        if (!CONFIG.AUTH_TOKEN) {
-          throw new Error('Defina a chave OpenRouter no painel de Config IA.');
-        }
-        const userName = localStorage.getItem(STORAGE.USER_NAME) || 'Você';
-        const asstName = localStorage.getItem(STORAGE.ASSISTANT_NAME) || 'Dual.Infodose';
-        const messages = [
-          {
-            role: 'system',
-            content:
+    function appendUserPulseBlock(text){
+      if (!text) return;
+      if (bootBlock){
+        bootBlock.remove();
+        bootBlock = null;
+      }
+      const div = document.createElement('div');
+      div.className = 'response-block user-pulse';
+      const html = '<p>'+parseMarkdownBasic(text).replace(/\n/g,'<br/>')+'</p>';
+      div.innerHTML = html;
+      enhanceBlock(div);
+      responseList.appendChild(div);
+      scrollToBottom();
+    }
+
+    async function callOpenRouter(promptText){
+      if (!CONFIG.AUTH_TOKEN){
+        throw new Error('Defina a chave OpenRouter no painel de Config IA.');
+      }
+      const userName = localStorage.getItem(STORAGE.USER_NAME) || 'Você';
+      const asstName = localStorage.getItem(STORAGE.ASSISTANT_NAME) || 'Dual.Infodose';
+      const messages = [
+        {
+          role:'system',
+          content:
 `Você é ${asstName}, o assistente Dual.Infodose conectado ao ecossistema Hub1/KOBLLUX.
 Responda em português, em tom gentil, simbólico e acionável, como um "chat cinematográfico".
 Use parágrafos curtos, que possam ser divididos em 3 blocos: recompensa inicial, curiosidade no meio, e convite no final.`
+        }
+      ].concat(conversation,[
+        { role:'user', content:`${userName} diz: ${promptText}` }
+      ]);
+      const body = { model:CONFIG.MODEL, temperature:CONFIG.TEMP, messages };
+      const res = await fetch(CONFIG.API_URL,{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':CONFIG.AUTH_TOKEN
+        },
+        body:JSON.stringify(body)
+      });
+      if (!res.ok){
+        const txt = await res.text();
+        console.error('Erro IA:', txt);
+        throw new Error('Falha na resposta da IA: '+res.status);
+      }
+      const data = await res.json();
+      const choice = data.choices && data.choices[0];
+      const content = choice?.message?.content || '(sem conteúdo retornado)';
+      conversation.push({ role:'user', content:promptText });
+      conversation.push({ role:'assistant', content });
+      return content;
+    }
+
+    async function sendPrompt(promptText, options){
+      const opts = options || {};
+      const fromBlock = !!opts.fromBlock;
+      const text = (promptText || '').trim();
+      if (!text) return;
+      setCollapsed(false);
+      if (!fromBlock) userInput.value = '';
+      userInput.disabled = true;
+      sendBtn.disabled   = true;
+      const oldFooter = footerHint.textContent;
+      footerHint.textContent = fromBlock
+        ? 'Pulso em expansão a partir do bloco.'
+        : 'Processando pulso.';
+
+      if (synth && synth.speaking){
+        synth.cancel();
+        voiceBtn.classList.remove('speaking');
+      }
+
+      appendUserPulseBlock(text);
+
+      try{
+        const answer = await callOpenRouter(text);
+        const cinematicBlocks = splitResponseCinematic(answer);
+        appendBlocksFromData(cinematicBlocks);
+      }catch(err){
+        console.error(err);
+        const errorBlocks = [{
+          kind:'ending',
+          html:'<p><strong>Ops.</strong> Não foi possível falar com o OpenRouter agora. Verifique sua chave e tente novamente.</p>'
+        }];
+        appendBlocksFromData(errorBlocks);
+      }finally{
+        userInput.disabled = false;
+        sendBtn.disabled   = false;
+        userInput.focus();
+        footerHint.textContent = oldFooter || 'Do seu jeito. Sempre único. Sempre seu.';
+      }
+    }
+
+    async function handleSendFromInput(){
+      const text = userInput.value.trim();
+      if (!text) return;
+      await sendPrompt(text,{ fromBlock:false });
+    }
+
+    sendBtn.addEventListener('click', handleSendFromInput);
+    userInput.addEventListener('keydown', ev=>{
+      if (ev.key === 'Enter' && !ev.shiftKey){
+        ev.preventDefault();
+        handleSendFromInput();
+      }
+    });
+
+    copyBtn.addEventListener('click', async ()=>{
+      let target = responseBlocks[responseBlocks.length - 1];
+      if (!target && bootBlock) target = bootBlock;
+      if (!target) return;
+      const temp = getBlockText(target);
+      if (!temp) return;
+      try{
+        await navigator.clipboard.writeText(temp);
+        footerHint.textContent = 'Bloco copiado para a área de transferência.';
+      }catch{
+        footerHint.textContent = 'Não consegui copiar automaticamente.';
+      }
+    });
+
+    pasteBtn.addEventListener('click', async ()=>{
+      try{
+        const txt = await navigator.clipboard.readText();
+        if (txt) userInput.value = txt;
+      }catch(e){}
+    });
+
+    function initParticles(){
+      if (!window.particlesJS){
+        console.warn('particlesJS não encontrado.');
+        return;
+      }
+      particlesJS('particles-js',{
+        particles:{
+          number:{ value:60, density:{ enable:true, value_area:800 } },
+          color:{ value:['#00f5ff','#ff4bff','#ffffff'] },
+          shape:{ type:'circle' },
+          opacity:{ value:0.45, random:true },
+          size:{ value:3, random:true },
+          line_linked:{
+            enable:true,
+            distance:140,
+            color:'#00f5ff',
+            opacity:0.25,
+            width:1
+          },
+          move:{
+            enable:true,
+            speed:1.2,
+            direction:'none',
+            random:false,
+            straight:false,
+            out_mode:'out',
+            bounce:false
           }
-        ].concat(conversation, [
-          {
-            role: 'user',
-            content: `${userName} diz: ${promptText}`
+        },
+        interactivity:{
+          detect_on:'canvas',
+          events:{
+            onhover:{ enable:true, mode:'grab' },
+            onclick:{ enable:false, mode:'push' },
+            resize:true
+          },
+          modes:{
+            grab:{
+              distance:160,
+              line_linked:{ opacity:0.5 }
+            }
           }
-        ]);
-        const body = {
-          model: CONFIG.MODEL,
-          temperature: CONFIG.TEMP,
-          messages
-        };
-        const res = await fetch(CONFIG.API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': CONFIG.AUTH_TOKEN
-          },
-          body: JSON.stringify(body)
-        });
-        if (!res.ok) {
-          const txt = await res.text();
-          console.error('Erro IA:', txt);
-          throw new Error('Falha na resposta da IA: ' + res.status);
-        }
-        const data = await res.json();
-        const choice = data.choices && data.choices[0];
-        const content = choice?.message?.content || '(sem conteúdo retornado)';
-        conversation.push({ role: 'user', content: promptText });
-        conversation.push({ role: 'assistant', content });
-        return content;
-      }
-
-      async function sendPrompt(promptText, options) {
-        const opts = options || {};
-        const fromBlock = !!opts.fromBlock;
-        const text = (promptText || '').trim();
-        if (!text) return;
-        setCollapsed(false);
-        if (!fromBlock) userInput.value = '';
-        userInput.disabled = true;
-        sendBtn.disabled = true;
-        const oldFooter = footerHint.textContent;
-        footerHint.textContent = fromBlock
-          ? 'Pulso em expansão a partir do bloco.'
-          : 'Processando pulso.';
-
-        if (synth && synth.speaking) {
-          synth.cancel();
-          voiceBtn.classList.remove('speaking');
-        }
-
-        appendUserPulseBlock(text);
-
-        try {
-          const answer = await callOpenRouter(text);
-          const cinematicBlocks = splitResponseCinematic(answer);
-          appendBlocksFromData(cinematicBlocks);
-        } catch (err) {
-          console.error(err);
-          const errorBlocks = [{
-            kind: 'ending',
-            html: '<p><strong>Ops.</strong> Não foi possível falar com o OpenRouter agora. Verifique sua chave e tente novamente.</p>'
-          }];
-          appendBlocksFromData(errorBlocks);
-        } finally {
-          userInput.disabled = false;
-          sendBtn.disabled = false;
-          userInput.focus();
-          footerHint.textContent = oldFooter || 'Do seu jeito. Sempre único. Sempre seu.';
-        }
-      }
-
-      async function handleSendFromInput() {
-        const text = userInput.value.trim();
-        if (!text) return;
-        await sendPrompt(text, { fromBlock: false });
-      }
-
-      sendBtn.addEventListener('click', handleSendFromInput);
-      userInput.addEventListener('keydown', ev => {
-        if (ev.key === 'Enter' && !ev.shiftKey) {
-          ev.preventDefault();
-          handleSendFromInput();
-        }
+        },
+        retina_detect:true
       });
+    }
 
-      copyBtn.addEventListener('click', async () => {
-        let target = responseBlocks[responseBlocks.length - 1];
-        if (!target && bootBlock) target = bootBlock;
-        if (!target) return;
-        const temp = getBlockText(target);
-        if (!temp) return;
-        try {
-          await navigator.clipboard.writeText(temp);
-          footerHint.textContent = 'Bloco copiado para a área de transferência.';
-        } catch {
-          footerHint.textContent = 'Não consegui copiar automaticamente. Copie manualmente se quiser.';
-        }
-      });
+    function init(){
+      if (initialized) return;
+      initialized = true;
 
-      pasteBtn.addEventListener('click', async () => {
-        try {
-          const txt = await navigator.clipboard.readText();
-          if (txt) userInput.value = txt;
-        } catch {}
-      });
+      restoreTheme();
+      restoreNames();
+      loadIaConfigFromStorage();
+      loadVoiceConfigFromStorage();
 
-      function initParticles() {
-        if (!window.particlesJS) {
-          console.warn('particlesJS não encontrado.');
-          return;
-        }
-        particlesJS('particles-js', {
-          particles: {
-            number: { value: 60, density: { enable: true, value_area: 800 } },
-            color: { value: ['#00f5ff', '#ff4bff', '#ffffff'] },
-            shape: { type: 'circle' },
-            opacity: { value: 0.45, random: true },
-            size: { value: 3, random: true },
-            line_linked: {
-              enable: true,
-              distance: 140,
-              color: '#00f5ff',
-              opacity: 0.25,
-              width: 1
-            },
-            move: {
-              enable: true,
-              speed: 1.2,
-              direction: 'none',
-              random: false,
-              straight: false,
-              out_mode: 'out',
-              bounce: false
-            }
-          },
-          interactivity: {
-            detect_on: 'canvas',
-            events: {
-              onhover: { enable: true, mode: 'grab' },
-              onclick: { enable: false, mode: 'push' },
-              resize: true
-            },
-            modes: {
-              grab: {
-                distance: 160,
-                line_linked: { opacity: 0.5 }
-              }
-            }
-          },
-          retina_detect: true
-        });
+      const archActive = localStorage.getItem('ARCHETYPE_ACTIVE');
+      if (archActive){
+        currentVoiceKey = archActive;
+        localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
+      }
+      updateVoiceOrbLabel();
+      setCollapsed(false);
+      initParticles();
+
+      // 🔄 Roda-Viva Aleatória na abertura (12 UPA)
+      const RV_ARCHES = ['Atlas','Nova','Vitalis','Pulse','Artemis','Serena','Kaos','Genus','Lumine','Rhea','Solus','Aion'];
+      const randomArch = RV_ARCHES[Math.floor(Math.random()*RV_ARCHES.length)];
+      localStorage.setItem('ARCHETYPE_ACTIVE', randomArch);
+      if (bootText){
+        const msg =
+`[${randomArch}] Roda-Viva aleatória ativada.
+Hoje quem abre o portal é ${randomArch}.
+Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
+        bootText.dataset.text = msg;
+        bootText.textContent  = msg;
+      }
+      if (bootBlock){
+        markBlockArchetype(bootBlock, randomArch);
+      }
+      if (typeof window.KOB_APPLY_VOICE_THEME === 'function'){
+        window.KOB_APPLY_VOICE_THEME(randomArch.toLowerCase());
       }
 
-      function init() {
-        if (initialized) return;
-        initialized = true;
-        restoreTheme();
-        restoreNames();
-        loadIaConfigFromStorage();
-        loadVoiceConfigFromStorage();
-        const archActive = localStorage.getItem('ARCHETYPE_ACTIVE');
-        if (archActive) {
-          currentVoiceKey = archActive;
-          localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
-        }
-        updateVoiceOrbLabel();
-        setCollapsed(false);
-        initParticles();
-        if (bootText) bootText.classList.add('pulse');
-        if (bootBlock && synth) {
-          setTimeout(() => {
-            try { speakBlock(bootBlock); } catch(e){}
-          }, 700);
-        }
-        console.log('Dual Cinemático V2.9 (TTS + Roda-Viva de Vozes) inicializado.');
+      if (bootText) bootText.classList.add('pulse');
+      if (bootBlock && synth){
+        setTimeout(()=>{ try{ speakBlock(bootBlock); }catch(e){}; }, 700);
       }
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
-    })();
+      console.log('Dual Cinemático + Roda-Viva inicializado. Arquétipo inicial:', randomArch);
+    }
+
+    if (document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
   </script>
 </body>
 </html>
