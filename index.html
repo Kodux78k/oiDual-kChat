@@ -705,6 +705,347 @@
         margin:0 auto;
       }
     }
+
+/* === CARD DO DIA + VÍDEOS (acima do chat) === */
+
+.daily-card {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 16px;
+  padding: 12px 12px 10px;
+  border-radius: 18px;
+  background: radial-gradient(circle at 0 0, rgba(0,255,255,.16), rgba(0,0,0,.9));
+  box-shadow: 0 10px 30px rgba(0,0,0,.6);
+  position: relative;
+  z-index: 1;
+}
+.daily-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,255,255,.35);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  opacity: .9;
+  background: rgba(0,0,0,.5);
+  margin-bottom: 4px;
+}
+.daily-chip::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(45deg,#0ff,#f0f);
+  box-shadow: 0 0 10px rgba(0,255,255,.7);
+}
+.daily-card h2 {
+  font-size: .98rem;
+  margin-bottom: 4px;
+}
+.daily-card p {
+  font-size: .78rem;
+  line-height: 1.5;
+  opacity: .9;
+}
+.daily-ask-btn {
+  margin-top: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,255,255,.6);
+  background: transparent;
+  color: #00f5ff;
+  padding: 5px 10px;
+  font-size: .78rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .25s, color .25s, transform .25s;
+}
+.daily-ask-btn:hover {
+  background: #00f5ff;
+  color: #050515;
+  transform: translateY(-1px);
+}
+
+/* Trilho de vídeos */
+
+.videos-section {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 10px;
+  z-index: 1;
+}
+.videos-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: .78rem;
+  opacity: .85;
+  padding: 0 2px 4px;
+}
+.videos-header small {
+  font-size: .7rem;
+  opacity: .7;
+}
+.video-rail {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.45) transparent;
+}
+.video-rail::-webkit-scrollbar {
+  height: 4px;
+}
+.video-rail::-webkit-scrollbar-track {
+  background: transparent;
+}
+.video-rail::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.4);
+  border-radius: 999px;
+}
+.video-card {
+  flex: 0 0 180px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 0 0, rgba(0,255,255,.12), rgba(0,0,0,.95));
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 10px 20px rgba(0,0,0,.7);
+  padding: 8px 8px 10px;
+  cursor: pointer;
+  transition: transform .25s, box-shadow .25s, border-color .25s, background .25s;
+}
+.video-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.9);
+  border-color: rgba(0,255,255,.6);
+  background: radial-gradient(circle at 0 0, rgba(0,255,255,.2), rgba(0,0,0,.98));
+}
+.video-thumb {
+  width: 100%;
+  height: 90px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 0 0, rgba(0,255,255,.4), transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(255,0,255,.4), transparent 60%),
+    linear-gradient(135deg, #050b1a, #080214);
+}
+.video-thumb::after {
+  content: "▶";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.6rem;
+  color: #fff;
+  text-shadow: 0 0 12px rgba(0,0,0,.7);
+}
+.video-card h3 {
+  font-size: .8rem;
+  margin-bottom: 3px;
+}
+.video-card p {
+  font-size: .7rem;
+  opacity: .85;
+}
+
+/* ================================
+   PAINEL OIDUAL · TELEVISÃO VIVA
+   MOBILE-FIRST VERTICAL HARD-LOCK
+   ================================ */
+#oidual-panel-shell{
+  width:100%;
+  max-width:520px;
+  margin:18px auto 10px;
+  z-index:1;
+}
+
+.oidual-panel{
+  position:relative;
+  margin:0 0 4px;
+  padding:14px 14px 12px;
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(0,255,255,.20), transparent 55%),
+    radial-gradient(circle at 90% 100%, rgba(255,0,255,.16), transparent 60%),
+    linear-gradient(145deg, rgba(3,7,16,.96), rgba(3,3,10,.98));
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.8),
+    0 18px 40px rgba(0,0,0,.75),
+    0 0 32px rgba(0,255,255,.22);
+  backdrop-filter: blur(18px) saturate(160%);
+}
+
+/* Header */
+.oidual-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.oidual-title-col h2{
+  margin:0;
+  font-size:1.02rem;
+  letter-spacing:.03em;
+}
+.oidual-title-col p{
+  margin:3px 0 0;
+  font-size:.78rem;
+  opacity:.8;
+}
+
+.oidual-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 9px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(0,0,0,.75);
+  font-size:.7rem;
+  text-transform:uppercase;
+  letter-spacing:.10em;
+}
+.oidual-badge .dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #ff9b9b, #ff1744);
+  box-shadow:0 0 10px rgba(255,23,68,.9);
+  animation:oidualLivePulse 1.6s ease-in-out infinite;
+}
+@keyframes oidualLivePulse{
+  0%,100%{ transform:scale(1); opacity:1; }
+  50%{ transform:scale(1.35); opacity:.6; }
+}
+
+/* Tabs */
+.oidual-tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+  overflow-x:auto;
+}
+.oidual-tabs::-webkit-scrollbar{
+  height:3px;
+}
+.oidual-tabs::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.22);
+  border-radius:999px;
+}
+.oidual-tab{
+  flex-shrink:0;
+  border:none;
+  padding:7px 13px;
+  border-radius:999px;
+  font-size:.86rem;
+  cursor:pointer;
+  background:rgba(0,0,0,.65);
+  color:var(--text);
+  border:1px solid rgba(255,255,255,.18);
+  opacity:.86;
+  transition:
+    background .22s ease,
+    border-color .22s ease,
+    transform .16s ease,
+    box-shadow .22s ease,
+    opacity .2s ease;
+}
+.oidual-tab.active{
+  background:radial-gradient(circle at 0 0, rgba(0,255,255,.35), rgba(0,0,0,1));
+  border-color:rgba(0,255,255,.7);
+  box-shadow:0 0 18px rgba(0,255,255,.55);
+  opacity:1;
+  transform:translateY(-1px);
+}
+
+/* Screen */
+.oidual-screen{
+  position:relative;
+  border-radius:16px;
+  padding:14px 12px 12px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.04) 1px,
+      rgba(0,0,0,.20) 2px,
+      rgba(0,0,0,.20) 3px
+    ),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.04), transparent 55%),
+    linear-gradient(160deg, rgba(0,0,0,.85), rgba(0,0,0,.98));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.8);
+  min-height:116px;
+  overflow:hidden;
+}
+.oidual-screen::after{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background:linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255,255,255,.08) 45%,
+    transparent 55%
+  );
+  mix-blend-mode:screen;
+  opacity:0;
+  transform:translateX(-40%);
+  pointer-events:none;
+  animation:oidualScan 9s linear infinite;
+}
+@keyframes oidualScan{
+  0%{ opacity:0; transform:translateX(-40%); }
+  10%{ opacity:.7; }
+  35%{ opacity:0; transform:translateX(40%); }
+  100%{ opacity:0; transform:translateX(40%); }
+}
+
+.oidual-screen h3{
+  margin:0 0 4px;
+  font-size:.92rem;
+}
+.oidual-screen p{
+  margin:0;
+  font-size:.8rem;
+  opacity:.85;
+}
+
+.oidual-screen-placeholder{
+  text-align:left;
+}
+
+/* Footer */
+.oidual-footer{
+  margin-top:8px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  font-size:.74rem;
+  opacity:.86;
+}
+.oidual-footer .tip{
+  opacity:.84;
+}
+
+/* Adaptar em telas maiores (já respeitando max-width do body) */
+@media (min-width:768px){
+  #oidual-panel-shell{
+    margin-top:22px;
+  }
+}
+
   </style>
 
   <!-- Patches KOBLLUX / Vozes / Tema / Fades (podem ser recortados como patch) -->
@@ -771,6 +1112,96 @@
     window.dispatchEvent(new Event('KOBLLUX_VOICES_READY'));
   })();
   </script>
+<script>
+
+// Hero Card + Vídeos (modo plug-in)
+// Requer: função global handleSend(text)
+
+(function () {
+  const heroState = {
+    dailyCards: []
+  };
+
+  function initDailyCards() {
+    const cards = [
+      {
+        title: 'Organizar o caos com gentileza',
+        text: 'Escolha uma coisa pequena pra organizar hoje (uma pasta, um recibo, uma ideia) e peça pro chat te ajudar a transformar isso em um mini-ritual de 3·6·9 minutos.'
+      },
+      {
+        title: 'Pulso criativo em 3 blocos',
+        text: 'Use o chat para dividir uma ideia em: início, meio e expansão. Deixa ele te devolver em blocos e clique pra ouvir cada um.'
+      },
+      {
+        title: 'Ritual de voz',
+        text: 'Grave um áudio simples contando o que está travando hoje. Deixa o chat transcrever, organizar e sugerir um próximo passo.'
+      },
+      {
+        title: 'Card da Infodose Local',
+        text: 'Pergunte: “Como posso usar o Dual Chat hoje como um mini-assistente financeiro, criativo ou emocional?” e testa uma rotina de 3 mensagens.'
+      }
+    ];
+
+    heroState.dailyCards = cards;
+    const index = new Date().getDate() % cards.length;
+    const card = cards[index];
+
+    const titleEl = document.getElementById('dailyTitle');
+    const textEl  = document.getElementById('dailyText');
+
+    if (titleEl && textEl) {
+      titleEl.textContent = card.title;
+      textEl.textContent  = card.text;
+    }
+
+    const dailyBtn = document.getElementById('dailyAskBtn');
+    if (dailyBtn) {
+      dailyBtn.addEventListener('click', () => {
+        const prompt = `Quero aplicar o card do dia: "${card.title}". Me ajuda passo a passo para hoje?`;
+        if (typeof handleSend === 'function') {
+          handleSend(prompt);
+        } else {
+          const input = document.getElementById('userInput');
+          if (input) input.value = prompt;
+        }
+      });
+    }
+  }
+
+  function initVideosRail() {
+    const rail = document.getElementById('videoRail');
+    if (!rail) return;
+
+    rail.addEventListener('click', (ev) => {
+      const card = ev.target.closest('.video-card');
+      if (!card) return;
+
+      const url = card.getAttribute('data-url') || '';
+      const prompt = card.getAttribute('data-prompt')
+        || `Quero falar sobre o vídeo "${(card.querySelector('h3') || {}).textContent || ''}".`;
+
+      if (url) {
+        window.open(url, '_blank');
+      }
+
+      if (typeof handleSend === 'function') {
+        handleSend(prompt);
+      } else {
+        const input = document.getElementById('userInput');
+        if (input) input.value = prompt;
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initDailyCards();
+    initVideosRail();
+  });
+})();
+
+</script>
+
+
 
   <!-- KOBLLUX · PATCH de Tema de Voz (V3+cores por arquétipo) -->
   <script id="KOB_VOICE_THEME_PATCH_V3">
@@ -1161,7 +1592,233 @@
     </svg>
   </div>
 
-  <div id="assistantName">Dual.Infodose · Cinemático</div>
+  <div id="assistantName">Dual.Infodose ·💊</div>
+
+
+<!-- ================================
+     PAINEL OIDUAL · TELEVISÃO VIVA
+     ================================ -->
+<section id="oidual-panel-shell">
+  <div class="oidual-panel">
+    <header class="oidual-header">
+      <div class="oidual-title-col">
+        <h2>Painel OiDual · Televisão Viva</h2>
+        <p>Sintonize um canal para começar o dia.</p>
+      </div>
+      <div class="oidual-badge">
+        <span class="dot"></span>
+        <span>AO VIVO</span>
+      </div>
+    </header>
+
+    <nav class="oidual-tabs">
+      <button class="oidual-tab active" type="button" data-oidual-mode="apps">
+        📺 Apps
+      </button>
+      <button class="oidual-tab" type="button" data-oidual-mode="docs">
+        📖 Docs
+      </button>
+      <button class="oidual-tab" type="button" data-oidual-mode="ritual">
+        🌌 Ritual
+      </button>
+    </nav>
+
+    <div class="oidual-screen" id="oidualScreen">
+      <div class="oidual-screen-placeholder">
+        <h3>Escolha um canal acima</h3>
+        <p>O Painel OiDual vai puxar apps, documentos ou um campo de pausa ritual.</p>
+      </div>
+    </div>
+
+    <footer class="oidual-footer">
+      <span class="tip">Dica: use o Painel como “canal 0” antes de descer pro chat.</span>
+    </footer>
+  </div>
+</section>
+
+<!-- CARD DO DIA -->
+<section class="daily-card" id="dailyCard">
+  <div class="daily-chip">Card do dia</div>
+  <h2 id="dailyTitle">Pulso do dia</h2>
+  <p id="dailyText">
+    Chegando com um lembrete suave: você pode usar este chat para organizar ideias,
+    planejar o dia e testar arquétipos em tempo real.
+  </p>
+  <button type="button" class="daily-ask-btn" id="dailyAskBtn">
+    Falar sobre este card
+  </button>
+</section>
+
+<!-- VÍDEOS DO PORTAL -->
+
+<!-- VÍDEOS DO PORTAL · INFODOSE -->
+<section class="videos-section">
+  <div class="videos-header">
+    <span>Infodose · Trilhas, Sinopses e Meditações</span>
+    <small>Toque para abrir e enviar o tema pro chat</small>
+  </div>
+
+  <div class="video-rail" id="videoRail">
+
+    <!-- TRILHAS E ATIVAÇÕES -->
+    <article class="video-card"
+             data-url="https://youtu.be/Bt_rLbMjJDk?si=zyeH5r5dwSXUalRQ"
+             data-prompt="Quero aplicar agora a trilha 'Trilhas Potencializadoras dos Aromas'. Me ajuda a transformar isso em um ritual simples pra hoje?">
+      <div class="video-thumb"></div>
+      <h3>Trilhas Potencializadoras dos Aromas</h3>
+      <p>Trilhas sonoras ligadas aos aromas e ao estado mental.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/_0wVkryxanE?si=mxUNmCAkvAeArkNh"
+             data-prompt="Quero descobrir como ativar na prática 'Desperte a magia dos 12 arquétipos'. Me guia em passos simples?">
+      <div class="video-thumb"></div>
+      <h3>Desperte a magia dos 12 arquétipos</h3>
+      <p>Visão geral dos arquétipos e suas ativações.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/Id2NI9tv1r4?si=l6fCFHPmsx0d-JQF"
+             data-prompt="Quero usar o vídeo 'Pra quem merece saber' como portal de motivação hoje. Me ajuda a traduzir em ações práticas?">
+      <div class="video-thumb"></div>
+      <h3>Infodose — Pra quem merece saber</h3>
+      <p>Manifesto vivo da Infodose e de quem merece acessar.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtube.com/playlist?list=PL_XiIUPFx4DSKFuJZZiKCxVUy20PtDdaB&si=uEd2XAVmTTTU83SY"
+             data-prompt="Quero montar uma rotina com a playlist 'Se chegou até você, merece saber'. Me ajuda a estruturar isso em 3·6·9 passos?">
+      <div class="video-thumb"></div>
+      <h3>Playlist · Se chegou até você</h3>
+      <p>Sequência de vídeos-portais da Infodose.</p>
+    </article>
+
+    <!-- SINOPSES E CONHECIMENTOS FUNDAMENTAIS -->
+    <article class="video-card"
+             data-url="https://youtu.be/qldgs0aLdB0?si=5G8Tlopm5gjKUIyh"
+             data-prompt="Quero aplicar hoje a Fórmula da Dopamina Sexy no meu dia. Resume o vídeo e transforma em passos práticos?">
+      <div class="video-thumb"></div>
+      <h3>Sinopse — Fórmula da Dopamina Sexy</h3>
+      <p>Expectativa, recompensa e progressão aplicadas à vida real.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/FbutKMpd8MY?si=6OA0Z3ahYx-gseq_"
+             data-prompt="Quero usar o conceito de 'Espaço da Mente' pra organizar minha vida hoje. Traduz o vídeo em uma prática guiada?">
+      <div class="video-thumb"></div>
+      <h3>Sinopse — O Espaço da Mente</h3>
+      <p>Como o ambiente interno e externo moldam o pulso mental.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/1L9_rFmIGJ8?si=5_KHB4xg5W3noYsa"
+             data-prompt="Quero entender o conceito de recompensa desse vídeo e aplicar em um hábito que estou criando. Me ajuda?">
+      <div class="video-thumb"></div>
+      <h3>Sinopse — A Recompensa</h3>
+      <p>Como estruturar recompensas que sustentam hábitos.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtube.com/playlist?list=PL_XiIUPFx4DQam6tyiwimO5b3X_T1Y1wd&si=TD96KSrrQJRv539P"
+             data-prompt="Quero usar a playlist das sinopses dos livros como estudo guiado. Cria um plano de estudo Infodose pra mim?">
+      <div class="video-thumb"></div>
+      <h3>Playlist · Sinopses dos Livros</h3>
+      <p>Espaço da Mente + Dopamina Sexy em série.</p>
+    </article>
+
+    <!-- AMBIENTE E ESPAÇO DA MENTE -->
+    <article class="video-card"
+             data-url="https://youtu.be/koKhjQKGJSc?si=xhEW88ErdjHH6UhF"
+             data-prompt="Quero aplicar o vídeo 'O poder das cortinas' no meu espaço hoje. Me dá um passo a passo simbólico e prático?">
+      <div class="video-thumb"></div>
+      <h3>Manipulação da energia — Cortinas</h3>
+      <p>Como cortinas modulam energia, luz e vibração.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/KrtOVrk8aDk?si=aKns80jQHtw1zUxe"
+             data-prompt="Quero usar o conceito 'Poder sob seus pés' pra ajustar meu ambiente agora. Me guia em uma mini-intervenção no espaço?">
+      <div class="video-thumb"></div>
+      <h3>Poder sob seus pés — Pisos</h3>
+      <p>Pisos como trilhos de energia e paz no ambiente.</p>
+    </article>
+
+    <!-- NEUROCIÊNCIA E BEM-ESTAR -->
+    <article class="video-card"
+             data-url="https://youtu.be/NBWDV6xjUP0?si=l4iZzqdua58Kv3Tu"
+             data-prompt="Quero entender minha relação com dopamina usando esse vídeo. Me ajuda a mapear meus gatilhos e recompensas?">
+      <div class="video-thumb"></div>
+      <h3>Dopamina — O segredo dos vícios</h3>
+      <p>Neurociência da dopamina e ciclos de vício.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/dGYbN8jgdNQ?si=_FgBp8Ljei6XWOhq"
+             data-prompt="Tenho questões com foco / TDAH. Usa esse vídeo como base pra criar um plano de cuidado pra mim?">
+      <div class="video-thumb"></div>
+      <h3>TDAH e Dopamina</h3>
+      <p>Ligação entre atenção, dopamina e rotina.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/JBjFhAutIVk?si=-sACVDkstV-tRXSI"
+             data-prompt="Quero usar esse vídeo pra começar a manipular meu subconsciente de forma saudável. Me traz um ritual diário?">
+      <div class="video-thumb"></div>
+      <h3>Como manipular seu subconsciente</h3>
+      <p>Ferramentas simbólicas e práticas pro inconsciente.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/GSBv45vigRE?si=g66p5IkoTZpXMwpN"
+             data-prompt="Eu vivo esquecendo coisas. Usa esse vídeo pra me ajudar a entender o motivo e criar uma estratégia de cuidado?">
+      <div class="video-thumb"></div>
+      <h3>Esquece das coisas?</h3>
+      <p>Investigando o verdadeiro motivador dos esquecimentos.</p>
+    </article>
+
+    <!-- MEDITAÇÕES GUIADAS -->
+    <article class="video-card"
+             data-url="https://youtu.be/hfQ1L6fCfAo?si=U0gEenlflkcRkITU"
+             data-prompt="Quero fazer agora a meditação 'A deriva no espaço da mente'. Me guia num preparo rápido antes de dar o play?">
+      <div class="video-thumb"></div>
+      <h3>Meditação — A deriva no espaço da mente</h3>
+      <p>Viagem inicial pelo espaço interno.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/Tq99vQNQ6dQ?si=UdHnciys_4WwC715"
+             data-prompt="Quero usar a meditação 'A deriva na mente do espaço da mente' pra hoje. Me ajuda a definir uma intenção clara?">
+      <div class="video-thumb"></div>
+      <h3>Meditação — A deriva na mente do espaço</h3>
+      <p>Camadas mais profundas do espaço da mente.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/DTDfkHwuMic?si=Rybf6OTMUVaeyD-C"
+             data-prompt="Quero navegar pelo universo da mente com essa meditação. Cria uma frase de ancoragem pra eu repetir antes/depois?">
+      <div class="video-thumb"></div>
+      <h3>Navegando pelo Universo da Mente</h3>
+      <p>Exploração expansiva do universo interno.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/OVfqxW_Xlhw?si=cpPRSMKchNAc5jhu"
+             data-prompt="Quero usar a 'Sinfonia da Expansão Criativa' pra destravar minha criação hoje. Me dá um roteiro de uso?">
+      <div class="video-thumb"></div>
+      <h3>Sinfonia da Expansão Criativa</h3>
+      <p>Trilha meditativa para destravar criatividade.</p>
+    </article>
+
+    <article class="video-card"
+             data-url="https://youtu.be/kCHvLOtJIwQ?si=DYKNmTwNo38XVx6T"
+             data-prompt="Quero fazer essa 'Jornada de Transformação' como ritual de mudança. Me ajuda a preparar antes e integrar depois?">
+      <div class="video-thumb"></div>
+      <h3>Jornada de Transformação</h3>
+      <p>Meditação guiada para mudança profunda.</p>
+    </article>
+
+  </div>
+</section>
 
   <div class="response-container" id="response">
     <div class="pages-wrapper" id="responseList">
@@ -2163,5 +2820,163 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
     }
   })();
   </script>
+
+<script>
+/* ================================
+   PAINEL OIDUAL · LÓGICA DOS CANAIS
+   ================================ */
+(function(){
+  const shell  = document.getElementById('oidual-panel-shell');
+  const screen = document.getElementById('oidualScreen');
+  if (!shell || !screen) return;
+
+  const tabBtns = Array.from(shell.querySelectorAll('[data-oidual-mode]'));
+  let currentMode = null;
+  let ritualSpoken = false;
+
+  function setMode(mode){
+    if (!mode || mode === currentMode) return;
+    currentMode = mode;
+
+    tabBtns.forEach(btn=>{
+      btn.classList.toggle('active', btn.dataset.oidualMode === mode);
+    });
+
+    if (mode === 'apps') {
+      renderAppsChannel();
+    } else if (mode === 'docs') {
+      renderDocsChannel();
+    } else if (mode === 'ritual') {
+      renderRitualChannel();
+    }
+  }
+
+  // Canal · Apps: tenta usar um hook global, cai em placeholder se não existir
+  function renderAppsChannel(){
+    if (typeof window.renderHubAppsPreview === 'function') {
+      try{
+        const html = window.renderHubAppsPreview();
+        if (html) {
+          screen.innerHTML = html;
+          return;
+        }
+      }catch(e){
+        console.warn('[Painel OiDual] erro ao chamar renderHubAppsPreview', e);
+      }
+    }
+
+    screen.innerHTML = `
+      <h3>📺 Apps conectados</h3>
+      <p>Use este canal para destacar seus apps do Hub / BlueCup como se fossem programas de TV.</p>
+      <p style="margin-top:6px;font-size:.78rem;opacity:.78;">
+        Dica: crie <code>window.renderHubAppsPreview()</code> para o Painel puxar cards reais.
+      </p>
+    `;
+  }
+
+  // Canal · Docs: tenta ler um “último Livro Vivo” do ambiente
+  function renderDocsChannel(){
+    if (typeof window.getLastInfodocHtml === 'function') {
+      try{
+        const html = window.getLastInfodocHtml();
+        if (html) {
+          screen.innerHTML = html;
+          return;
+        }
+      }catch(e){
+        console.warn('[Painel OiDual] erro em getLastInfodocHtml()', e);
+      }
+    }
+
+    let raw = '';
+    try{
+      raw = localStorage.getItem('infodocs_last_md') || '';
+    }catch(e){}
+
+    if (raw && typeof window.convertLivroVivoToHtml === 'function') {
+      try{
+        const html = window.convertLivroVivoToHtml(raw);
+        if (html) {
+          screen.innerHTML = html;
+          return;
+        }
+      }catch(e){
+        console.warn('[Painel OiDual] erro em convertLivroVivoToHtml()', e);
+      }
+    }
+
+    screen.innerHTML = `
+      <h3>📖 Documentos Infodocs</h3>
+      <p>Nenhum documento foi conectado ainda ao Painel OiDual.</p>
+      <p style="margin-top:6px;font-size:.78rem;opacity:.78;">
+        Você pode salvar o último Livro Vivo em
+        <code>localStorage.infodocs_last_md</code>
+        ou expor uma função
+        <code>window.getLastInfodocHtml()</code>
+        para o painel consumir automaticamente.
+      </p>
+    `;
+  }
+
+  // Canal · Ritual: TV preta + símbolo + TTS opcional
+  function renderRitualChannel(){
+    screen.innerHTML = `
+      <div style="text-align:center;padding:4px 2px;">
+        <div style="
+          width:70px;height:70px;margin:0 auto 10px;
+          border-radius:50%;
+          border:1px solid rgba(0,255,255,.5);
+          box-shadow:
+            0 0 18px rgba(0,255,255,.7),
+            inset 0 0 0 1px rgba(0,0,0,.9);
+          display:flex;align-items:center;justify-content:center;
+          background:radial-gradient(circle at 30% 30%, rgba(0,255,255,.35), rgba(0,0,0,1));
+          animation:oidualRitualSpin 9s linear infinite;
+        ">
+          <span style="font-size:1.4rem;">◎</span>
+        </div>
+        <h3>🌌 Modo Ritual OiDual</h3>
+        <p style="margin-top:4px;font-size:.8rem;opacity:.86;">
+          Respira. O painel segurou o resto pra você.
+          Quando quiser, volte para Apps ou Docs.
+        </p>
+      </div>
+    `;
+    if (!ritualSpoken && 'speechSynthesis' in window) {
+      try{
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(
+          'Modo Ritual OiDual iniciado. Respira. Uma coisa por vez. Eu seguro o resto do painel para você.'
+        );
+        window.speechSynthesis.speak(u);
+        ritualSpoken = true;
+      }catch(e){
+        console.warn('[Painel OiDual] erro ao falar modo ritual', e);
+      }
+    }
+  }
+
+  const ritualCssId = 'oidualRitualAnim';
+  if (!document.getElementById(ritualCssId)) {
+    const style = document.createElement('style');
+    style.id = ritualCssId;
+    style.textContent = `
+      @keyframes oidualRitualSpin{
+        0%{ transform:rotate(0deg); }
+        50%{ transform:rotate(180deg) scale(1.05); }
+        100%{ transform:rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  tabBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=> setMode(btn.dataset.oidualMode));
+  });
+
+  setMode('apps');
+})();
+</script>
+
 </body>
 </html>
