@@ -1046,6 +1046,81 @@
   }
 }
 
+/* ================================
+   PAINEL OIDUAL · V2 · SANFONAS
+   ================================ */
+.oidual-accordion{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.oidual-acc{
+  border-radius:12px;
+  background:rgba(0,0,0,.65);
+  border:1px solid rgba(255,255,255,.12);
+  padding:0;
+  overflow:hidden;
+}
+
+.oidual-acc summary{
+  list-style:none;
+  cursor:pointer;
+  padding:7px 9px;
+  font-size:.82rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  background:linear-gradient(135deg,rgba(0,0,0,.9),rgba(0,20,35,.96));
+}
+
+.oidual-acc summary::-webkit-details-marker{
+  display:none;
+}
+
+.oidual-acc-label{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.oidual-acc-label strong{
+  font-size:.84rem;
+}
+
+.oidual-acc-label span{
+  font-size:.74rem;
+  opacity:.8;
+}
+
+.oidual-acc-pill{
+  padding:2px 8px;
+  border-radius:999px;
+  font-size:.7rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  border:1px solid rgba(0,255,255,.4);
+  background:rgba(0,10,20,.95);
+  color:#a7ffea;
+  white-space:nowrap;
+}
+
+.oidual-acc-body{
+  padding:7px 9px 8px;
+  font-size:.78rem;
+  opacity:.88;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+
+.oidual-acc-body p{
+  margin:0 0 4px;
+}
+
+.oidual-acc-body p:last-child{
+  margin-bottom:0;
+}
+
   </style>
 
   <!-- Patches KOBLLUX / Vozes / Tema / Fades (podem ser recortados como patch) -->
@@ -2783,7 +2858,7 @@ Use parágrafos curtos, que possam ser divididos em 3 blocos: recompensa inicial
         localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
       }
       updateVoiceOrbLabel();
-      setCollapsed(false);
+      setCollapsed(true);
       initParticles();
 
       // 🔄 Roda-Viva Aleatória na abertura (12 UPA)
@@ -2823,7 +2898,7 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
 
 <script>
 /* ================================
-   PAINEL OIDUAL · LÓGICA DOS CANAIS
+   PAINEL OIDUAL · V2 · CANAIS + SANFONAS
    ================================ */
 (function(){
   const shell  = document.getElementById('oidual-panel-shell');
@@ -2851,7 +2926,7 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
     }
   }
 
-  // Canal · Apps: tenta usar um hook global, cai em placeholder se não existir
+  // Canal · Apps: tenta hook global, senão mostra sanfonas
   function renderAppsChannel(){
     if (typeof window.renderHubAppsPreview === 'function') {
       try{
@@ -2866,11 +2941,49 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
     }
 
     screen.innerHTML = `
-      <h3>📺 Apps conectados</h3>
-      <p>Use este canal para destacar seus apps do Hub / BlueCup como se fossem programas de TV.</p>
-      <p style="margin-top:6px;font-size:.78rem;opacity:.78;">
-        Dica: crie <code>window.renderHubAppsPreview()</code> para o Painel puxar cards reais.
-      </p>
+      <div class="oidual-accordion">
+        <details class="oidual-acc" open>
+          <summary>
+            <div class="oidual-acc-label">
+              <strong>Hub · BlueCup</strong>
+              <span>Atalhos principais do seu ecossistema.</span>
+            </div>
+            <span class="oidual-acc-pill">Nó Solar</span>
+          </summary>
+          <div class="oidual-acc-body">
+            <p>Use este bloco para listar os apps mais usados: ClientDocs, Dual Chat 78, Painel Solar, etc.</p>
+            <p style="font-size:.74rem;opacity:.78;">
+              Dica: implemente <code>window.renderHubAppsPreview()</code> para o painel puxar cards reais.
+            </p>
+          </div>
+        </details>
+
+        <details class="oidual-acc">
+          <summary>
+            <div class="oidual-acc-label">
+              <strong>Apps de Ritual</strong>
+              <span>Trilhas, meditações e oráculos Infodose.</span>
+            </div>
+            <span class="oidual-acc-pill">Ritual</span>
+          </summary>
+          <div class="oidual-acc-body">
+            <p>Reserve este espaço para apps de pausa, foco, respiração e trilhas guiadas.</p>
+          </div>
+        </details>
+
+        <details class="oidual-acc">
+          <summary>
+            <div class="oidual-acc-label">
+              <strong>Laboratório</strong>
+              <span>Experimentos, betas e testes de interface.</span>
+            </div>
+            <span class="oidual-acc-pill">Dev</span>
+          </summary>
+          <div class="oidual-acc-body">
+            <p>Ideal para apps em construção, novos monólitos e protótipos que você estiver testando.</p>
+          </div>
+        </details>
+      </div>
     `;
   }
 
@@ -2906,15 +3019,40 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
     }
 
     screen.innerHTML = `
-      <h3>📖 Documentos Infodocs</h3>
-      <p>Nenhum documento foi conectado ainda ao Painel OiDual.</p>
-      <p style="margin-top:6px;font-size:.78rem;opacity:.78;">
-        Você pode salvar o último Livro Vivo em
-        <code>localStorage.infodocs_last_md</code>
-        ou expor uma função
-        <code>window.getLastInfodocHtml()</code>
-        para o painel consumir automaticamente.
-      </p>
+      <div class="oidual-accordion">
+        <details class="oidual-acc" open>
+          <summary>
+            <div class="oidual-acc-label">
+              <strong>Último Livro Vivo</strong>
+              <span>Mostra o último Infodoc salvo ou conectado.</span>
+            </div>
+            <span class="oidual-acc-pill">Infodocs</span>
+          </summary>
+          <div class="oidual-acc-body">
+            <p>Nenhum documento foi conectado ainda ao Painel OiDual.</p>
+            <p style="font-size:.74rem;opacity:.78;">
+              Você pode salvar o último Livro Vivo em
+              <code>localStorage.infodocs_last_md</code>
+              ou expor uma função
+              <code>window.getLastInfodocHtml()</code>
+              para o painel consumir automaticamente.
+            </p>
+          </div>
+        </details>
+
+        <details class="oidual-acc">
+          <summary>
+            <div class="oidual-acc-label">
+              <strong>Roteiros & Notas</strong>
+              <span>Use como TV de leitura rápida.</span>
+            </div>
+            <span class="oidual-acc-pill">Notas</span>
+          </summary>
+          <div class="oidual-acc-body">
+            <p>Ideal para resumos de aulas, roteiros de gravação e manifestos em andamento.</p>
+          </div>
+        </details>
+      </div>
     `;
   }
 
@@ -2974,6 +3112,7 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
     btn.addEventListener('click', ()=> setMode(btn.dataset.oidualMode));
   });
 
+  // Abre sempre em "Apps" sanfonado
   setMode('apps');
 })();
 </script>
