@@ -1752,7 +1752,7 @@
         const html = '<p>'+parseMarkdownBasic(p).replace(/\n/g,'<br/>')+'</p>';
         blocks.push({ kind, html });
       });
-      return blocks.slice(0,3);
+      return blocks;
     }
 
     function getBlockText(block){
@@ -1972,7 +1972,7 @@
         '2. Use blocos curtos, com títulos, listas e callouts (::info, ::warn, ::success, ::question, ::aside) quando fizer sentido.',
         '3. Cada parágrafo separado por linha vazia vira um bloco independente.',
         '4. Priorize explicações práticas, exemplos e micro-ações de 1%.',
-        '5. Quando fizer sentido, use Tabelista (linhas com "|" ) para estruturar comparações.',
+        '5. Quando fizer sentido, use Tabelista (linhas com "- |" ) para estruturar comparações.',
         '6. Não peça chave de API; assuma que a infraestrutura já está pronta do lado do usuário.',
         `7. O usuário se chama ${userName}; fale com ele pelo nome algumas vezes, mas sem exagero.`
       ].join('\n');
