@@ -1,0 +1,106 @@
+#kdxDevToggleFallback{
+  position:fixed;
+  bottom:12px;
+  right:12px;
+  padding:6px 10px;
+  font-size:12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(180deg, rgba(0,0,0,.78), rgba(6,10,22,.9));
+  color:#fff;
+  z-index:100000;
+  cursor:pointer;
+  backdrop-filter: blur(6px);
+  box-shadow:0 8px 20px rgba(0,0,0,.5);
+}
+
+/* -- painel centralizado (horizontal center, flutua acima do centro vertical) -- */
+#kdxDevPanel{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%) translateY(8px) scale(.995);
+  bottom:auto;
+  top:8vh;                         /* afasta do topo em telas maiores */
+  width:min(760px, 95vw);         /* mais largo em desktop, responsivo */
+  max-width:95vw;
+  height:80vh;                    /* AUMENTADO: mais espaço vertical */
+  max-height:92vh;
+  border-radius:16px;
+  background:var(--bg-panel, rgba(6,10,22,.96));
+  backdrop-filter:blur(14px) saturate(1.05);
+  box-shadow:0 28px 60px rgba(0,0,0,.6);
+  border:1px solid rgba(0,245,255,.18);
+  color:var(--text, #e6f3ff);
+  font-family:inherit;
+  font-size:13px;
+  display:flex;
+  flex-direction:column;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s cubic-bezier(.2,.9,.2,1), transform .22s ease;
+  z-index:99998;
+  padding:8px;
+}
+
+/* aberto */
+#kdxDevPanel.open{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateX(-50%) translateY(0) scale(1);
+}
+
+
+    /* header */
+#kdxDevHeader{
+  padding:8px 10px 6px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  gap:10px;
+}
+#kdxDevHeader .left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+#kdxDevHeader span{
+  opacity:.85;
+  cursor:pointer;
+  font-weight:600;
+  font-size:12px;
+}
+
+
+    /* TABS: pills com indicador e rolagem quando necessário */
+#kdxDevTabs{
+  display:flex;
+  gap:8px;
+  padding:10px;
+  align-items:center;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  border-bottom:1px solid rgba(255,255,255,.03);
+  scrollbar-width:thin;
+}
+.kdxDevTab{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:8px 12px;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  cursor:pointer;
+  opacity:.75;
+  border-radius:999px;
+  background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.02));
+  border:1px solid transparent;
+  transition:all .18s ease;
+  color:var(--text, #e6f3ff);
+}
