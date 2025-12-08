@@ -1,7 +1,7 @@
 // serviceworker.sw.js
 // PWA básico para o dual-Infodose Chat Cinematográfico
 
-const CACHE_NAME = 'dual-infodose-chat-v1';
+const CACHE_NAME = 'dual-infodose-chat-v2';
 const ASSETS = [
   './',
   './index.html',              // se o arquivo principal tiver outro nome, ajuste aqui
