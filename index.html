@@ -1378,7 +1378,7 @@
     };
 
     let conversation = [];
-    let isCollapsed = false;
+    let isCollapsed = true;
     let initialized = false;
     const responseBlocks = [];
 
@@ -1389,13 +1389,13 @@
         .replace(/>/g,'&gt;');
     }
 
-    function scrollToBottom(){
-      if (!responseContainer) return;
-      responseContainer.scrollTo({ top: responseContainer.scrollHeight, behavior:'smooth' });
-      try{
-        window.scrollTo({ top: document.body.scrollHeight, behavior:'smooth' });
-      }catch(e){}
-    }
+    // function scrollToBottom(){
+      // if (!responseContainer) return;
+      //responseContainer.scrollTo({ top: responseContainer.scrollHeight, behavior:'smooth' });
+      //try{
+        //window.scrollTo({ top: document.body.scrollHeight, behavior:'smooth' });
+      //}catch(e){}
+    //}
 
     function loadIaConfigFromStorage(){
       const key   = localStorage.getItem(STORAGE.OPENROUTER_KEY) || '';
@@ -1824,10 +1824,7 @@
         updateVoiceOrbLabel();
       }
 
-      try{
-        block.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });
-      }catch(e){}
-      scrollToBottom();
+      //try{block.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });}catch(e){}scrollToBottom();
 
       if (synth.speaking){
         synth.cancel();
@@ -1942,7 +1939,7 @@
         enhanceBlock(div);
         responseList.appendChild(div);
       });
-      scrollToBottom();
+      // scrollToBottom();
       speakLastBlock();
     }
 
@@ -1958,7 +1955,7 @@
       div.innerHTML = html;
       enhanceBlock(div);
       responseList.appendChild(div);
-      scrollToBottom();
+     // scrollToBottom();
     }
 
     // ===== SYSTEM PROMPT UNIFIED =====
@@ -2258,7 +2255,7 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
   border:1px solid rgba(255,255,255,.14);
   background:linear-gradient(180deg, rgba(0,0,0,.78), rgba(6,10,22,.9));
   color:#fff;
-  z-index:100000;
+  z-index:1;
   cursor:pointer;
   backdrop-filter: blur(6px);
   box-shadow:0 8px 20px rgba(0,0,0,.5);
@@ -2288,7 +2285,7 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
   opacity:0;
   pointer-events:none;
   transition:opacity .22s cubic-bezier(.2,.9,.2,1), transform .22s ease;
-  z-index:99998;
+  z-index:0;
   padding:8px;
 }
 
