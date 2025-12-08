@@ -2176,7 +2176,7 @@
         localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
       }
       updateVoiceOrbLabel();
-      setCollapsed(true);
+      setCollapsed(false);
       initParticles();
 
       // 🔄 Roda-Viva Aleatória na abertura (12 UPA)
@@ -2255,7 +2255,7 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
   border:1px solid rgba(255,255,255,.14);
   background:linear-gradient(180deg, rgba(0,0,0,.78), rgba(6,10,22,.9));
   color:#fff;
-  z-index:12;
+  z-index:100000;
   cursor:pointer;
   backdrop-filter: blur(6px);
   box-shadow:0 8px 20px rgba(0,0,0,.5);
@@ -2285,13 +2285,13 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
   opacity:0;
   pointer-events:none;
   transition:opacity .22s cubic-bezier(.2,.9,.2,1), transform .22s ease;
-  z-index:10;
+  z-index:99998;
   padding:8px;
 }
 
 /* aberto */
 #kdxDevPanel.open{
-  opacity:0.96;
+  opacity:1;
   pointer-events:auto;
   transform:translateX(-50%) translateY(0) scale(1);
 }
@@ -2344,7 +2344,7 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
   text-transform:uppercase;
   letter-spacing:.06em;
   cursor:pointer;
-  opacity:.78;
+  opacity:.75;
   border-radius:999px;
   background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.02));
   border:1px solid transparent;
@@ -3522,7 +3522,7 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
     txt.style.pointerEvents = 'none';
 
     Object.assign(btn.style, {
-      fontSize: '4px',
+      fontSize: '10px',
       padding: '6px 10px',
       borderRadius: '999px',
       border: '1px solid rgba(0,245,255,.6)',
@@ -3530,7 +3530,7 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
       color: '#00f5ff',
       marginLeft: '8px',
       cursor: 'pointer',
-      opacity: '0.18',
+      opacity: '0.88',
       transition: 'opacity .12s ease, transform .09s ease',
       zIndex: 0,
       display: 'inline-flex',
