@@ -3077,7 +3077,40 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
       jsInput.value = '';
     });
   }
+// --- Persistência (localStorage) ---
+const CSS_STORAGE_KEY = 'KDX_CSS_STORAGE_v1';
 
+function saveCssListToLocalStorage(){
+  try{
+    const serial = window.KDX_CSS_LIST.map(item => ({ name: item.name, css: item.styleEl ? item.styleEl.textContent : '', ts: item.ts }));
+    localStorage.setItem(CSS_STORAGE_KEY, JSON.stringify(serial));
+    appendLog('system','KDX CSS salvo em localStorage ('+serial.length+' itens)');
+  }catch(e){
+    appendLog('error','Erro salvando CSS em localStorage:', e);
+  }
+}
+
+function loadCssListFromLocalStorage(){
+  try{
+    const raw = localStorage.getItem(CSS_STORAGE_KEY);
+    if (!raw) return;
+    const arr = JSON.parse(raw);
+    arr.forEach(it=>{
+      try{
+        const style = document.createElement('style');
+        style.dataset.kdxCssName = it.name;
+        style.textContent = it.css || '';
+        document.head.appendChild(style);
+        window.KDX_CSS_LIST.push({ name: it.name, styleEl: style, ts: it.ts || Date.now() });
+      }catch(e){
+        appendLog('warn','Falha ao reinjetar CSS:', it.name, e);
+      }
+    });
+    appendLog('system','KDX CSS carregado do localStorage ('+(arr.length||0)+' itens)');
+  }catch(e){
+    appendLog('warn','Erro lendo CSS do localStorage:', e);
+  }
+}
   // Clear buttons
   const jsonClearBtn = document.getElementById('kdxJsonClear');
   if (jsonClearBtn) jsonClearBtn.addEventListener('click', ()=>{
@@ -3101,9 +3134,11 @@ Iniciando. Pulso simbiótico detectado. Presença reconhecida.`;
   });
 
   // Inicializa renderizações (caso já existam)
-  renderJsonList();
-  renderCssList();
-  renderJsList();
+ // ao inicializar a página
+loadCssListFromLocalStorage();
+renderJsonList();
+renderCssList();
+renderJsList();
 
   // -------------------------------------------------
   // 7) Editor + Monaco opcional
