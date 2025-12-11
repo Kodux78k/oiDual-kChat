@@ -735,6 +735,214 @@
 body.minimal-style *{ transition:none !important; backdrop-filter:none !important; filter:none !important; }
 body.turbo-style { --kob-voice-theme-duration: 1600ms; filter:contrast(1.06) saturate(1.08); }
 
+/* ================= KDX — Kael DomnnuS UI ================= */
+
+/* SPLASH / ABRAÇO */
+.kdx-splash{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(180deg,#05040a 0%, #07061a 60%);
+  z-index:9999;
+  pointer-events:none;
+}
+.kdx-splash-inner{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  transform-origin:center;
+  animation: kdx-embrace 0.5s cubic-bezier(.22,.9,.35,1) forwards;
+}
+.kdx-splash-logo{ width:96px; height:96px; border-radius:24px; object-fit:cover; box-shadow:0 10px 30px rgba(0,0,0,.6); }
+.kdx-splash-title{ color:var(--accent, #8fe1ff); font-weight:700; font-size:1.1rem; opacity:.95; transform:translateY(6px); }
+
+/* Embrace pulse */
+@keyframes kdx-embrace {
+  0%   { transform: scale(.86)  rotate(0deg); opacity:0; filter:blur(6px); }
+  50%  { transform: scale(1.06) rotate(-1deg); opacity:1; }
+  100% { transform: scale(1) rotate(0deg); opacity:1; filter:blur(0); }
+}
+
+/* DAWN background transition (3s) */
+body.kdx-dawn-active { animation: kdx-dawn 3s forwards; }
+@keyframes kdx-dawn {
+  0% { background-color: #0a0a0a; }
+  100% { background-color: #f0e6d2; }
+}
+
+/* RISE for elements */
+.kdx-rise { animation: kdx-rise 1s ease-out forwards; animation-delay: .03s; opacity:0; transform:translateY(18px); }
+@keyframes kdx-rise {
+  0% { transform:translateY(18px); opacity:0; }
+  100% { transform:translateY(0); opacity:1; }
+}
+
+/* MODE TOGGLE (top-right) */
+#kdx-mode-toggle {
+  position:fixed; top:14px; right:14px; z-index:1200;
+  background:var(--panel); border-radius:12px; padding:8px 10px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,.35);
+  display:flex; gap:8px; align-items:center; font-weight:600;
+}
+
+/* ORB (Kaion) */
+.kdx-orb {
+  position:fixed; right:22px; bottom:24px; z-index:1200;
+  width:64px; height:64px; border-radius:999px;
+  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.06), rgba(30,130,240,.12));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 12px 28px rgba(20,40,90,.45), 0 2px 8px rgba(0,0,0,.6);
+  touch-action: none;
+  -webkit-user-select: none;
+}
+.kdx-orb.active { transform:scale(0.96); transition:transform .12s ease; filter:drop-shadow(0 6px 16px rgba(30,130,240,.22)); }
+.kdx-orb .kdx-orb-icon { font-size:1.4rem; color:var(--accent,#bfe9ff); }
+
+/* Minimal / Turbo styles quick tokens */
+body.minimal-style { transition: none !important; backdrop-filter: none !important; filter:none !important; --shadow-soft: none; }
+body.turbo-style { --accent: #ffd24d; filter:contrast(1.04) saturate(1.06); }
+
+/* small utility */
+.kdx-hidden{ display:none !important; }
+
+/* ==========================================================
+   PATCH UNIVERSAL — FORM ELEMENTS · NEBULA PRO
+   ========================================================== */
+
+/* —— CHECKBOXES ——————————————————————————————— */
+input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(8,10,25,0.65);
+  cursor: pointer;
+  transition: 0.22s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+input[type="checkbox"]:hover {
+  border-color: var(--accent-cold);
+}
+input[type="checkbox"]:checked {
+  background:
+    radial-gradient(circle at 30% 20%, #fff, var(--accent-warm));
+  box-shadow:
+    0 0 10px var(--accent-warm),
+    0 0 22px rgba(255,180,91,0.65);
+  border-color: rgba(255,180,91,0.85);
+}
+
+/* CHECKBOX “switch” */
+.switch {
+  position: relative;
+  width: 42px;
+  height: 22px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: rgba(8,10,25,0.85);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  transition: .25s ease;
+}
+.switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 2px;
+  top: 2px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 20%, #fff, var(--accent-cold));
+  box-shadow: 0 0 12px rgba(93,242,255,0.75);
+  transition: .25s ease;
+}
+.switch input:checked + .switch-slider {
+  background:
+    radial-gradient(circle at 0 0, rgba(255,180,91,0.22), transparent 55%),
+    rgba(10,14,40,0.85);
+  border-color: rgba(255,180,91,0.8);
+}
+.switch input:checked + .switch-slider::before {
+  transform: translateX(20px);
+  background: radial-gradient(circle at 30% 20%, #fff, var(--accent-warm));
+  box-shadow: 0 0 12px rgba(255,180,91,0.75);
+}
+
+/* —— RADIO ——————————————————————————————— */
+input[type="radio"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(8,10,25,0.65);
+  cursor: pointer;
+  transition: .2s ease;
+}
+input[type="radio"]:checked {
+  background:
+    radial-gradient(circle, var(--accent-cold) 0%, var(--accent-warm) 55%);
+  border-color: rgba(255,180,91,0.9);
+  box-shadow: 0 0 14px rgba(255,180,91,0.75);
+}
+
+/* —— SLIDERS ——————————————————————————————— */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-cold), var(--accent-warm));
+  border-radius: 999px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 20%, #fff, var(--accent-warm));
+  box-shadow: 0 0 14px rgba(255,180,91,0.9);
+  border: 2px solid rgba(10,14,41,0.9);
+  cursor: pointer;
+  transition: .2s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.07);
+}
+
+/* —— TEXTAREA / INPUT TEXT ——————————————————————————————— */
+textarea,
+input[type="text"],
+input[type="search"] {
+  background:
+    radial-gradient(circle at 0 0, rgba(93,242,255,0.08), transparent 55%),
+    rgba(5,7,22,0.92);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.16);
+  padding: 10px 14px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  resize: vertical;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+  transition: .22s ease;
+}
+textarea:focus-visible,
+input[type="text"]:focus-visible {
+  outline: 2px solid var(--accent-cold);
+  outline-offset: 2px;
+}
   </style>
 
   <!-- Patches KOBLLUX / Vozes / Tema / Fades (podem ser recortados como patch) -->
@@ -1147,6 +1355,24 @@ body.turbo-style { --kob-voice-theme-duration: 1600ms; filter:contrast(1.06) sat
   </script>
 </head>
 <body>
+  
+  <!-- ===== KDX — Kael DomnnuS STARTUP (splash + mode + orb) ===== -->
+<div id="kdx-splash" class="kdx-splash" aria-hidden="true">
+  <div class="kdx-splash-inner">
+    <img class="kdx-splash-logo" src="icon-192.png" alt="Kael DomnnuS"/>
+    <div class="kdx-splash-title">Kael DomnnuS · Organização Viva v2</div>
+  </div>
+</div>
+
+<button id="kdx-mode-toggle" aria-pressed="false" title="Modo: You / Assistant">
+  <span id="kdx-mode-icon">🧬</span>
+  <span id="kdx-mode-label">✦</span>
+</button>
+
+<div id="kdx-orb" class="kdx-orb kdx-hidden" role="button" aria-label="Orb de voz Kaion">
+  <div class="kdx-orb-icon">◎</div>
+</div>
+<!-- ===== KDX END ===== -->
 
   <!-- Ícones inline -->
   <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;">
@@ -4437,6 +4663,202 @@ renderJsList();
 })();
 
 </script>
+
+<script>
+/* ================= KDX — Kael DomnnuS Script ================= */
+/* Instruções: Cole este bloco no final do body (antes de </body>) */
+
+(function(){
+  // ------- config / estado -------
+  const SNAP = { duration: 0.8, threshold: 0.3 }; // padrão
+  const SPLASH_MS = 780; // 0.5s
+  const DAWN_DELAY = 60; // 30ms ~ 1% de 3s; usamos 60ms para suavizar
+  let currentMode = 'you'; // 'you' | 'assistant'
+  let orbActive = false;
+  let mediaRecorder = null;
+  let recordedChunks = [];
+  let speechRec = null;
+  const splash = document.getElementById('kdx-splash');
+  const modeToggle = document.getElementById('kdx-mode-toggle');
+  const modeLabel = document.getElementById('kdx-mode-label');
+  const modeIcon  = document.getElementById('kdx-mode-icon');
+  const orb = document.getElementById('kdx-orb');
+
+  // Utility: gentle delay start for animations to avoid popping
+  function startAppIntro(){
+    // hide splash after SPLASH_MS, then activate dawn
+    setTimeout(()=>{
+      if (splash) splash.style.display = 'none';
+      // slight delay then add dawn class to body
+      setTimeout(()=> document.body.classList.add('kdx-dawn-active'), DAWN_DELAY);
+      // rise effect for header/greeting elements if present
+      document.querySelectorAll('.kdx-greet, .kdx-hero, .kdx-welcome').forEach(el=>el.classList.add('kdx-rise'));
+    }, SPLASH_MS);
+  }
+
+  // Mode toggle
+  function setMode(mode){
+    currentMode = mode;
+    if (mode === 'assistant'){
+      modeLabel.textContent = 'Oi.Dual!';
+      modeIcon.textContent  = '◎';
+      orb.classList.remove('kdx-hidden');
+      orb.setAttribute('data-mode','assistant');
+    } else {
+      modeLabel.textContent = '◉';
+      modeIcon.textContent  = '💊';
+      orb.classList.add('kdx-hidden');
+      orb.setAttribute('data-mode','you');
+    }
+    modeToggle.setAttribute('aria-pressed', mode === 'assistant');
+  }
+
+  modeToggle.addEventListener('click', ()=>{
+    setMode(currentMode === 'you' ? 'assistant' : 'you');
+  });
+
+  // ORB — press and hold to capture (supports touch + mouse)
+  let orbTimeout = null;
+  function startCapture(){
+    orbActive = true;
+    orb.classList.add('active');
+    recordedChunks = [];
+    // Try MediaRecorder (getUserMedia) first
+    if (!mediaRecorder){
+      navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+        ? navigator.mediaDevices.getUserMedia({ audio: true }).then(stream=>{
+            try{
+              mediaRecorder = new MediaRecorder(stream);
+              mediaRecorder.ondataavailable = (e)=>{ if(e.data && e.data.size) recordedChunks.push(e.data); };
+              mediaRecorder.onstop = ()=> {
+                const blob = new Blob(recordedChunks, { type:'audio/webm' });
+                handleCapturedAudio(blob);
+              };
+              mediaRecorder.start();
+            }catch(err){ startSpeechRecognitionFallback(); }
+          }).catch(()=> startSpeechRecognitionFallback())
+        : startSpeechRecognitionFallback();
+    } else {
+      try{ mediaRecorder.start(); }catch(e){ startSpeechRecognitionFallback(); }
+    }
+  }
+
+  function startSpeechRecognitionFallback(){
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.warn('Nenhuma API de gravação disponível');
+      return;
+    }
+    speechRec = new SpeechRecognition();
+    speechRec.lang = 'pt-BR';
+    speechRec.interimResults = false;
+    speechRec.onresult = (ev)=> {
+      const text = Array.from(ev.results).map(r=>r[0].transcript).join('');
+      handleCapturedText(text);
+    };
+    speechRec.onerror = ()=>{};
+    speechRec.start();
+  }
+
+  function stopCapture(){
+    orbActive = false;
+    orb.classList.remove('active');
+    if (mediaRecorder && mediaRecorder.state !== 'inactive'){
+      try { mediaRecorder.stop(); } catch(e){}
+    }
+    if (speechRec){ try { speechRec.stop(); } catch(e){} }
+  }
+
+  function handleCapturedAudio(blob){
+    // envia blob para o endpoint de ASR ou processa localmente
+    // Exemplo: cria URL e dispara callback (substitua pelo seu pipeline)
+    const url = URL.createObjectURL(blob);
+    console.log('audio captured (blob url):', url);
+    footerHint && (footerHint.textContent = 'Áudio capturado, processando...');
+    // aqui você chamaria seu ASR / upload; exemplo simples:
+    // uploadAudio(blob).then(...);
+  }
+
+  function handleCapturedText(text){
+    console.log('captured text:', text);
+    footerHint && (footerHint.textContent = 'Texto capturado: ' + text.slice(0,40));
+    // processa comando / insere na conversa etc.
+  }
+
+  // orb pointer handlers (touch + mouse)
+  function orbPointerDown(ev){
+    ev.preventDefault();
+    // micro-action: 10ms debounce before accepting as real capture
+    orbTimeout = setTimeout(()=> startCapture(), 10);
+  }
+  function orbPointerUp(ev){
+    ev.preventDefault();
+    clearTimeout(orbTimeout);
+    // if already started, stop
+    if (orbActive) stopCapture();
+  }
+
+  // attach events
+  orb.addEventListener('mousedown', orbPointerDown);
+  orb.addEventListener('mouseup',   orbPointerUp);
+  orb.addEventListener('mouseleave', orbPointerUp);
+  orb.addEventListener('touchstart', orbPointerDown, {passive:false});
+  orb.addEventListener('touchend',   orbPointerUp);
+
+  // Timeline snap utils
+  function applySnapConfig(duration, threshold){
+    SNAP.duration = duration;
+    SNAP.threshold = threshold;
+    // se existir componente timeline, propague:
+    window.TIMELINE_SNAP = SNAP; // convenção simples
+    console.log('snap config applied', SNAP);
+  }
+  // aplica defaults do spec
+  applySnapConfig(0.8, 0.3);
+
+  // TTS ↔ Arquétipo hook (integra com sua função speakBlock)
+  // Assumimos que existe:
+  // - function detectArchetypeFromText(text) -> string
+  // - window.KOBLLUX_VOICES { key: { voice: 'Voice Name', name } }
+  // - speakBlock(block, {voiceName})
+  window.__kdx_apply_voice_for_archetype = function(archetypeKey){
+    const mapping = (window.KOBLLUX_VOICES && window.KOBLLUX_VOICES[archetypeKey]) || null;
+    if (mapping && mapping.voice){
+      // garante que speakBlock use este voice (implementação depende do seu speakBlock)
+      // Exemplo: define currentVoiceKey para o handler existente
+      window.currentVoiceKey = archetypeKey;
+      window.currentVoiceName = mapping.voice;
+      localStorage.setItem('ARCHETYPE_ACTIVE', archetypeKey);
+      console.log('Voz aplicada para arquétipo', archetypeKey, mapping.voice);
+      return mapping.voice;
+    }
+    return null;
+  };
+
+  // Start
+  document.addEventListener('DOMContentLoaded', ()=>{
+    startAppIntro();
+    // inicializa estado de modo guardado
+    const savedMode = localStorage.getItem('KDX_MODE');
+    if (savedMode) setMode(savedMode);
+    setMode('you'); // default
+  });
+
+  // persist mode
+  modeToggle.addEventListener('click', ()=> localStorage.setItem('KDX_MODE', currentMode));
+
+  // Expose small API para uso manual no console / outras partes
+  window.KDX = {
+    setMode, applySnapConfig, startCapture, stopCapture, setArchetypeVoice: window.__kdx_apply_voice_for_archetype
+  };
+
+  // ===== Registro Vivo Δ7 (metadata) =====
+  // Hash simbólico: #OV2-KAEL-3697
+  // Estado: Pronto para validação prática
+  // Ciclo: DETECTAR → INTEGRAR → EXPANDIR → SELAR → ATIVAR Δ
+})();
+</script>
+
 
 </body>
 </html>
