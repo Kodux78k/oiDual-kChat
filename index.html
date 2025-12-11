@@ -124,7 +124,7 @@
     }
 
     .response-container.collapsed{
-      bottom:24px;
+      bottom:29px;
       max-height:none;
       padding:6px 10px;
       background:radial-gradient(circle at 0 0,var(--kob-voice-bg-soft),rgba(0,0,0,.95));
@@ -149,7 +149,7 @@
     }
 
     #bootText{
-      font-weight:700;
+      font-weight:708;
       position:relative;
       letter-spacing:.03em;
       display:inline-block;
@@ -1769,195 +1769,500 @@
       return raw.trim();
     }
 
-    function detectArchetypeFromText(text){
-      if (!text) return null;
-      const t = text.toLowerCase();
-      let best = null;
-      let bestScore = 0;
-      Object.entries(ARCHETYPE_KEYWORDS).forEach(([name,words])=>{
-        let score = 0;
-        if (t.includes(name.toLowerCase())) score += 10;
-        words.forEach(w=>{
-          if (t.includes(String(w).toLowerCase())) score++;
-        });
-        if (score > bestScore){
-          bestScore = score;
-          best = name;
-        }
-      });
-      return bestScore > 0 ? best : null;
+ // -------------------
+// Config (ajuste aqui)
+// -------------------
+const SPEAK_COUNT = 9; // padrão: últimos 9 blocos (use 1, 9, etc)
+const PAUSE_BETWEEN_BLOCKS_MS = 120; // pausa entre blocos (visível)
+const SCROLL_OPTIONS = { behavior:'smooth', block:'center', inline:'nearest' };
+const HIGHLIGHT_CLASS = 'speaking';
+const HIGHLIGHT_DURATION = 90;
+
+// -------------------
+// Helpers existentes (mantidos)
+// -------------------
+function detectArchetypeFromText(text){
+  if (!text) return null;
+  const t = text.toLowerCase();
+  let best = null;
+  let bestScore = 0;
+  Object.entries(ARCHETYPE_KEYWORDS).forEach(([name,words])=>{
+    let score = 0;
+    if (t.includes(name.toLowerCase())) score += 10;
+    words.forEach(w=>{
+      if (t.includes(String(w).toLowerCase())) score++;
+    });
+    if (score > bestScore){
+      bestScore = score;
+      best = name;
     }
+  });
+  return bestScore > 0 ? best : null;
+}
 
-    function markBlockArchetype(div, archeName){
-      if (!div || !archeName) return;
-      div.dataset.archetype = archeName;
-      let badge = div.querySelector('.archetype-badge');
-      if (!badge){
-        badge = document.createElement('span');
-        badge.className = 'archetype-badge';
-        div.appendChild(badge);
-      }
-      badge.textContent = archeName;
+function markBlockArchetype(div, archeName){
+  if (!div || !archeName) return;
+  div.dataset.archetype = archeName;
+  let badge = div.querySelector('.archetype-badge');
+  if (!badge){
+    badge = document.createElement('span');
+    badge.className = 'archetype-badge';
+    div.appendChild(badge);
+  }
+  badge.textContent = archeName;
+}
+
+// -------------------
+// TTS original (mantido sem alteração)
+// -------------------
+function speakBlock(block){
+  if (!synth){
+    footerHint.textContent = 'Seu navegador não suporta voz (SpeechSynthesis).';
+    return;
+  }
+  if (!block){
+    footerHint.textContent = 'Nenhum bloco selecionado.';
+    return;
+  }
+  const text = getBlockText(block);
+  if (!text){
+    footerHint.textContent = 'Nada para ler nesse bloco.';
+    return;
+  }
+
+  const detectedArch = detectArchetypeFromText(text);
+  if (detectedArch){
+    currentVoiceKey = detectedArch;
+    localStorage.setItem('ARCHETYPE_ACTIVE', detectedArch);
+    localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
+    markBlockArchetype(block, detectedArch);
+    updateVoiceOrbLabel();
+  }
+
+  //try{block.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });}catch(e){}scrollToBottom();
+
+  if (synth.speaking){
+    synth.cancel();
+    voiceBtn.classList.remove('speaking');
+  }
+
+  const utter = new SpeechSynthesisUtterance(text);
+
+  let profile = null;
+  if (voiceConfig){
+    if (currentVoiceKey && voiceConfig[currentVoiceKey]){
+      profile = voiceConfig[currentVoiceKey];
+    } else if (voiceConfig.default){
+      profile = voiceConfig.default;
     }
+  }
 
-    function speakBlock(block){
-      if (!synth){
-        footerHint.textContent = 'Seu navegador não suporta voz (SpeechSynthesis).';
-        return;
-      }
-      if (!block){
-        footerHint.textContent = 'Nenhum bloco selecionado.';
-        return;
-      }
-      const text = getBlockText(block);
-      if (!text){
-        footerHint.textContent = 'Nada para ler nesse bloco.';
-        return;
-      }
+  const lang  = profile && profile.lang  ? profile.lang  : 'pt-BR';
+  const rate  = (profile && typeof profile.rate  === 'number') ? profile.rate  : 1;
+  const pitch = (profile && typeof profile.pitch === 'number') ? profile.pitch : 1;
+  const vol   = (profile && typeof profile.volume === 'number') ? profile.volume : 1;
 
-      const detectedArch = detectArchetypeFromText(text);
-      if (detectedArch){
-        currentVoiceKey = detectedArch;
-        localStorage.setItem('ARCHETYPE_ACTIVE', detectedArch);
-        localStorage.setItem(STORAGE.VOICE_CURRENT_KEY, currentVoiceKey);
-        markBlockArchetype(block, detectedArch);
-        updateVoiceOrbLabel();
-      }
+  utter.lang   = lang;
+  utter.rate   = rate;
+  utter.pitch  = pitch;
+  utter.volume = vol;
 
-      //try{block.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });}catch(e){}scrollToBottom();
+  if (profile && profile.voiceHint && availableVoices && availableVoices.length){
+    const hint = String(profile.voiceHint).toLowerCase();
+    let chosen = availableVoices.find(v=>v.name.toLowerCase().includes(hint));
+    if (!chosen) chosen = availableVoices.find(v=>v.lang === lang) || null;
+    if (chosen) utter.voice = chosen;
+  }
 
-      if (synth.speaking){
-        synth.cancel();
-        voiceBtn.classList.remove('speaking');
-      }
+  currentUtterance = utter;
 
-      const utter = new SpeechSynthesisUtterance(text);
+  utter.onstart = ()=>{
+    voiceBtn.classList.add('speaking');
+    footerHint.textContent = 'Lendo o bloco em voz alta.';
+  };
+  utter.onend = ()=>{
+    voiceBtn.classList.remove('speaking');
+    footerHint.textContent = 'Leitura concluída.';
+  };
+  utter.onerror = ()=>{
+    voiceBtn.classList.remove('speaking');
+    footerHint.textContent = 'Erro ao tentar falar.';
+  };
 
-      let profile = null;
-      if (voiceConfig){
-        if (currentVoiceKey && voiceConfig[currentVoiceKey]){
-          profile = voiceConfig[currentVoiceKey];
-        } else if (voiceConfig.default){
-          profile = voiceConfig.default;
-        }
-      }
+  synth.cancel();
+  synth.speak(utter);
+}
 
-      const lang  = profile && profile.lang  ? profile.lang  : 'pt-BR';
-      const rate  = (profile && typeof profile.rate  === 'number') ? profile.rate  : 1;
-      const pitch = (profile && typeof profile.pitch === 'number') ? profile.pitch : 1;
-      const vol   = (profile && typeof profile.volume === 'number') ? profile.volume : 1;
+// -------------------
+// Promise wrapper que reaproveita sua speakBlock
+// - não altera speakBlock, apenas observa currentUtterance.onend
+// - funciona também quando SpeechSynthesis não existe (heurística timed fallback)
+// -------------------
+function speakBlockPromise(block){
+  return new Promise((resolve) => {
+    if (!block) return resolve();
 
-      utter.lang   = lang;
-      utter.rate   = rate;
-      utter.pitch  = pitch;
-      utter.volume = vol;
+    const text = (typeof getBlockText === 'function') ? getBlockText(block) : (block && (block.innerText || block.textContent)) || '';
+    if (!text) return resolve();
 
-      if (profile && profile.voiceHint && availableVoices && availableVoices.length){
-        const hint = String(profile.voiceHint).toLowerCase();
-        let chosen = availableVoices.find(v=>v.name.toLowerCase().includes(hint));
-        if (!chosen) chosen = availableVoices.find(v=>v.lang === lang) || null;
-        if (chosen) utter.voice = chosen;
-      }
+    // visual + scroll
+    try { block.scrollIntoView(SCROLL_OPTIONS); } catch(e){}
+    block.dataset.state = 'spoken';
+    block.classList.add(HIGHLIGHT_CLASS);
 
-      currentUtterance = utter;
-
-      utter.onstart = ()=>{
-        voiceBtn.classList.add('speaking');
-        footerHint.textContent = 'Lendo o bloco em voz alta.';
-      };
-      utter.onend = ()=>{
-        voiceBtn.classList.remove('speaking');
-        footerHint.textContent = 'Leitura concluída.';
-      };
-      utter.onerror = ()=>{
-        voiceBtn.classList.remove('speaking');
-        footerHint.textContent = 'Erro ao tentar falar.';
-      };
-
-      synth.cancel();
-      synth.speak(utter);
-    }
-
-    function speakLastBlock(){
-      if (!responseBlocks.length) return;
-      const last = responseBlocks[responseBlocks.length - 1];
-      speakBlock(last);
-    }
-    voiceBtn.addEventListener('click', ()=>{ speakLastBlock(); });
-
-    function onBlockClick(ev){
-      const block = ev.currentTarget;
-      block.classList.add('clicked');
-      setTimeout(()=>block.classList.remove('clicked'),350);
-      const state = block.dataset.state || 'idle';
-      if (state === 'idle' || state === 'sent'){
-        block.dataset.state = 'spoken';
+    // se a API existe e a função speakBlock irá criar currentUtterance:
+    if (typeof synth !== 'undefined' && synth && 'speak' in synth && typeof speakBlock === 'function'){
+      // chama a tua função (ela define currentUtterance internamente)
+      try {
+        // Guardamos referência para o utterance que será criada
+        // Depois do speakBlock ser chamado, currentUtterance deverá apontar para o novo utter.
         speakBlock(block);
-      } else if (state === 'spoken'){
-        block.dataset.state = 'sent';
-        const text = getBlockText(block);
-        if (text) sendPrompt(text,{ fromBlock:true });
+      } catch (e){
+        console.warn('speakBlock threw', e);
+        // fallback para timeout
+        const estMs = Math.min(Math.max(text.length * 35, 500), 12000);
+        setTimeout(finish, estMs);
+        return;
+      }
+
+      // Se currentUtterance existe, anexamos onend empacotado (preservando handler original)
+      const utter = currentUtterance;
+      if (utter){
+        const origOnEnd = utter.onend;
+        let called = false;
+        utter.onend = function(e){
+          try { if (typeof origOnEnd === 'function') origOnEnd.call(this,e); } catch(err){ console.warn(err); }
+          if (!called){
+            called = true;
+            finish();
+          }
+        };
+        // Também trate erro
+        const origOnError = utter.onerror;
+        utter.onerror = function(e){
+          try { if (typeof origOnError === 'function') origOnError.call(this,e); } catch(err){ console.warn(err); }
+          if (!called){
+            called = true;
+            finish();
+          }
+        };
+        // Safety: se por algum motivo onend nunca vier, timeout extra
+        const safetyTimeout = Math.min(Math.max(text.length * 60, 2000), 20000);
+        setTimeout(()=>{ if (!called){ called = true; finish(); } }, safetyTimeout);
+        return;
+      } else {
+        // currentUtterance não foi definido (improvável) -> fallback timed
+        const estMs = Math.min(Math.max(text.length * 40, 500), 12000);
+        setTimeout(finish, estMs);
+        return;
+      }
+
+    } else {
+      // sem synth: fallback simples baseado em tamanho do texto
+      const estMs = Math.min(Math.max(text.length * 40, 500), 12000);
+      setTimeout(finish, estMs);
+      return;
+    }
+
+    // finalização comum: remove destaque e resolve
+    function finish(){
+      setTimeout(()=>{ // pequeno atraso visual
+        block.classList.remove(HIGHLIGHT_CLASS);
+        resolve();
+      }, HIGHLIGHT_DURATION);
+    }
+  });
+}
+
+// -------------------
+// Sequência: fala n blocos em ordem (usa speakBlockPromise)
+// - count: número de blocos (Infinity = todos)
+// - opts.pauseBetween: pausa entre blocos
+// - devolve Promise que resolve quando terminar
+// -------------------
+async function speakRecentBlocks(count = SPEAK_COUNT, opts = {}){
+  if (!responseBlocks || !responseBlocks.length) return;
+  let blocks;
+  if (!isFinite(count)){
+    blocks = Array.from(responseBlocks);
+  } else {
+    const start = Math.max(0, responseBlocks.length - count);
+    blocks = responseBlocks.slice(start);
+  }
+  // filtra elementos presentes no DOM
+  blocks = blocks.filter(b => b && b.parentNode);
+
+  for (let i = 0; i < blocks.length; i++){
+    const b = blocks[i];
+    // garante que cada card seja marcado antes de falar
+    if (b) b.dataset.state = 'spoken';
+    await speakBlockPromise(b);
+    if (opts.pauseBetween) await new Promise(r => setTimeout(r, opts.pauseBetween));
+    else await new Promise(r => setTimeout(r, PAUSE_BETWEEN_BLOCKS_MS));
+  }
+}
+
+// -------------------
+// Compatibilidade com função antiga speakLastBlock (agora chama speakRecentBlocks(1))
+// -------------------
+function speakLastBlock(){
+  // comportamento legado: fala apenas o último bloco
+  speakRecentBlocks(1);
+}
+
+// -------------------
+// Botão de voz: clique padrão fala últimos SPEAK_COUNT blocos
+// Shift+click fala tudo (Infinity)
+// -------------------
+// ------ Config para long-press / mobile ------
+const LONG_PRESS_MS = 650; // tempo para considerar "segurar" (ajusta se quiser)
+let _longPressTimer = null;
+let _didLongPress = false;
+
+// cria um indicador visual simples (opcional) — injeta no voiceBtn
+function ensureHoldIndicator(btn){
+  if (!btn) return;
+  if (btn.querySelector('.hold-indicator')) return;
+  const ind = document.createElement('span');
+  ind.className = 'hold-indicator';
+  ind.style.cssText = [
+    'position: absolute',
+    'inset: 0',
+    'pointer-events: none',
+    'border-radius: inherit',
+    'box-shadow: inset 0 0 0 0 rgba(0,0,0,0.12)',
+    'transition: box-shadow 120ms linear'
+  ].join(';');
+  btn.style.position = btn.style.position || 'relative';
+  btn.appendChild(ind);
+}
+
+// animar indicador (progress - 0..1)
+function setHoldIndicatorProgress(btn, progress){
+  const ind = btn && btn.querySelector && btn.querySelector('.hold-indicator');
+  if (!ind) return;
+  const pct = Math.max(0, Math.min(1, progress));
+  // usa box-shadow interno como barra — simples e compatível
+  const px = Math.round(pct * 24); // tamanho visual da barra
+  ind.style.boxShadow = `inset -${(24-px)}px 0 0 ${px}px rgba(0,0,0,0.14)`;
+}
+
+// cancela timer seguro
+function clearLongPressTimer(){
+  if (_longPressTimer){
+    clearInterval(_longPressTimer.intervalId);
+    clearTimeout(_longPressTimer.timeoutId);
+    _longPressTimer = null;
+  }
+  _didLongPress = false;
+}
+
+// substitui o listener antigo com clique/shift
+(function attachVoiceBtnHandlers(){
+  if (!voiceBtn) return;
+  ensureHoldIndicator(voiceBtn);
+
+  // --- desktop keyboard / mouse click handler (mantém Shift+click) ---
+  voiceBtn.addEventListener('click', (ev) => {
+    // se já foi considerado long-press, ignoramos o click subsequente
+    if (_didLongPress){
+      _didLongPress = false;
+      return;
+    }
+    const wantAll = ev.shiftKey === true;
+    if (wantAll){
+      speakRecentBlocks(Infinity);
+    } else {
+      speakRecentBlocks(SPEAK_COUNT);
+    }
+  });
+
+  // --- touch / long-press support (mobile) ---
+  // estratégia: touchstart -> começa timer com interval para feedback visual
+  // touchend / touchcancel -> se timer ainda ativo => cancelar e executar clique normal
+  voiceBtn.addEventListener('touchstart', (ev) => {
+    // evita múltiplos toques conflitantes
+    clearLongPressTimer();
+    _didLongPress = false;
+
+    const start = Date.now();
+    const btn = ev.currentTarget;
+
+    // intervalo para atualizar indicador de progresso (60fps ~ 16ms)
+    const intervalId = setInterval(() => {
+      const elapsed = Date.now() - start;
+      setHoldIndicatorProgress(btn, Math.min(1, elapsed / LONG_PRESS_MS));
+    }, 16);
+
+    // timeout que dispara o evento de "long-press"
+    const timeoutId = setTimeout(() => {
+      // marca que foi long-press para ignorar o click que vem depois
+      _didLongPress = true;
+      // visual: preencher indicador e reset after short time
+      setHoldIndicatorProgress(btn, 1);
+      // ação: falar tudo
+      speakRecentBlocks(Infinity);
+      // limpa timer
+      clearLongPressTimer();
+      // pequena animação de release
+      setTimeout(()=> setHoldIndicatorProgress(btn, 0), 220);
+    }, LONG_PRESS_MS);
+
+    _longPressTimer = { intervalId, timeoutId, startedAt: start };
+  }, { passive: true });
+
+  // on touchend / touchcancel limpamos e, se não foi long-press, executa clique "normal"
+  const onTouchEnd = (ev) => {
+    const btn = ev.currentTarget;
+    if (!_longPressTimer){
+      // possível que long-press já tenha disparado
+      setHoldIndicatorProgress(btn, 0);
+      return;
+    }
+    // calcula se o tempo expirou
+    const elapsed = Date.now() - (_longPressTimer.startedAt || 0);
+    clearLongPressTimer();
+    setHoldIndicatorProgress(btn, 0);
+
+    // se não alcançou LONG_PRESS_MS, consideramos um tap: disparar fala padrão
+    if (elapsed < LONG_PRESS_MS && !_didLongPress){
+      // Reproduz mesmo comportamento do click sem Shift
+      speakRecentBlocks(SPEAK_COUNT);
+    }
+    // caso _didLongPress seja true, o long-press já foi tratado
+  };
+
+  voiceBtn.addEventListener('touchend', onTouchEnd);
+  voiceBtn.addEventListener('touchcancel', onTouchEnd);
+
+  // --- suporte extra: tecla longa (teclado) — pressionar e segurar Space/Enter para falar tudo ---
+  voiceBtn.addEventListener('keydown', (ev) => {
+    // se o usuário segurar Enter/Space, consideramos long-press (desktop accessibility)
+    if (ev.key === ' ' || ev.key === 'Enter'){
+      ev.preventDefault();
+      // iniciamos similar ao touchstart
+      if (_longPressTimer) return;
+      const start = Date.now();
+      const btn = ev.currentTarget;
+      const intervalId = setInterval(() => {
+        const elapsed = Date.now() - start;
+        setHoldIndicatorProgress(btn, Math.min(1, elapsed / LONG_PRESS_MS));
+      }, 16);
+      const timeoutId = setTimeout(() => {
+        _didLongPress = true;
+        setHoldIndicatorProgress(btn, 1);
+        speakRecentBlocks(Infinity);
+        clearLongPressTimer();
+        setTimeout(()=> setHoldIndicatorProgress(btn, 0), 220);
+      }, LONG_PRESS_MS);
+      _longPressTimer = { intervalId, timeoutId, startedAt: start };
+    }
+  });
+
+  voiceBtn.addEventListener('keyup', (ev) => {
+    if (ev.key === ' ' || ev.key === 'Enter'){
+      const elapsed = _longPressTimer ? (Date.now() - _longPressTimer.startedAt) : 0;
+      clearLongPressTimer();
+      setHoldIndicatorProgress(voiceBtn, 0);
+      if (elapsed < LONG_PRESS_MS && !_didLongPress){
+        // tap via teclado = fala padrão
+        speakRecentBlocks(SPEAK_COUNT);
       }
     }
+  });
 
-    function addTtsButtonToBlock(div){
-      if (!div || div.querySelector('.block-tts-btn')) return;
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'block-tts-btn';
-      btn.textContent = '◎';
-      btn.addEventListener('click',(ev)=>{
-        ev.stopPropagation();
-        speakBlock(div);
-      });
-      div.appendChild(btn);
-    }
+})(); // fim attachVoiceBtnHandlers
 
-    function enhanceBlock(div){
-      if (!div) return;
-      div.dataset.state = div.dataset.state || 'idle';
-      div.addEventListener('click', onBlockClick);
-      addTtsButtonToBlock(div);
-      const t = getBlockText(div);
-      const arch = detectArchetypeFromText(t);
-      if (arch) markBlockArchetype(div, arch);
-      if (!responseBlocks.includes(div)) responseBlocks.push(div);
-    }
+// -------------------
+// onBlockClick: mantém tua lógica, mas usa speakBlock (comportamento existente)
+// -------------------
+function onBlockClick(ev){
+  const block = ev.currentTarget;
+  block.classList.add('clicked');
+  setTimeout(()=>block.classList.remove('clicked'),350);
+  const state = block.dataset.state || 'idle';
+  if (state === 'idle' || state === 'sent'){
+    block.dataset.state = 'spoken';
+    // mantém chamada direta ao speakBlock (como já faz)
+    speakBlock(block);
+  } else if (state === 'spoken'){
+    block.dataset.state = 'sent';
+    const text = getBlockText(block);
+    if (text) sendPrompt(text,{ fromBlock:true });
+  }
+}
 
-    if (bootBlock) enhanceBlock(bootBlock);
+// -------------------
+// addTtsButtonToBlock: mantém comportamento (usa speakBlock)
+// -------------------
+function addTtsButtonToBlock(div){
+  if (!div || div.querySelector('.block-tts-btn')) return;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'block-tts-btn';
+  btn.textContent = '◎';
+  btn.addEventListener('click',(ev)=>{
+    ev.stopPropagation();
+    // mantemos a chamada direta à tua função original
+    speakBlock(div);
+  });
+  div.appendChild(btn);
+}
 
-    function appendBlocksFromData(blocks){
-      if (!blocks || !blocks.length) return;
-      if (bootBlock){
-        bootBlock.remove();
-        bootBlock = null;
-      }
-      blocks.forEach(page=>{
-        const div = document.createElement('div');
-        div.className = 'response-block ' + (page.kind || 'middle');
-        div.innerHTML = page.html;
-        enhanceBlock(div);
-        responseList.appendChild(div);
-      });
-      // scrollToBottom();
-      speakLastBlock();
-    }
+// -------------------
+// enhanceBlock: igual (só garante push no array)
+// -------------------
+function enhanceBlock(div){
+  if (!div) return;
+  div.dataset.state = div.dataset.state || 'idle';
+  div.addEventListener('click', onBlockClick);
+  addTtsButtonToBlock(div);
+  const t = getBlockText(div);
+  const arch = detectArchetypeFromText(t);
+  if (arch) markBlockArchetype(div, arch);
+  if (!responseBlocks.includes(div)) responseBlocks.push(div);
+}
 
-    function appendUserPulseBlock(text){
-      if (!text) return;
-      if (bootBlock){
-        bootBlock.remove();
-        bootBlock = null;
-      }
-      const div = document.createElement('div');
-      div.className = 'response-block user-pulse';
-      const html = '<p>'+parseMarkdownBasic(text).replace(/\n/g,'<br/>')+'</p>';
-      div.innerHTML = html;
-      enhanceBlock(div);
-      responseList.appendChild(div);
-     // scrollToBottom();
-    }
+if (bootBlock) enhanceBlock(bootBlock);
 
+// -------------------
+// appendBlocksFromData: ao anexar blocos, fala os últimos SPEAK_COUNT por padrão
+// -------------------
+function appendBlocksFromData(blocks){
+  if (!blocks || !blocks.length) return;
+  if (bootBlock){
+    bootBlock.remove();
+    bootBlock = null;
+  }
+  blocks.forEach(page=>{
+    const div = document.createElement('div');
+    div.className = 'response-block ' + (page.kind || 'middle');
+    div.innerHTML = page.html;
+    enhanceBlock(div);
+    responseList.appendChild(div);
+  });
+  // scrollToBottom();
+  // por padrão fala os últimos SPEAK_COUNT blocos
+  speakRecentBlocks(SPEAK_COUNT);
+}
+
+// -------------------
+// appendUserPulseBlock: mantém adição do bloco do usuário (não fala automaticamente)
+// -------------------
+function appendUserPulseBlock(text){
+  if (!text) return;
+  if (bootBlock){
+    bootBlock.remove();
+    bootBlock = null;
+  }
+  const div = document.createElement('div');
+  div.className = 'response-block user-pulse';
+  const html = '<p>'+parseMarkdownBasic(text).replace(/\n/g,'<br/>')+'</p>';
+  div.innerHTML = html;
+  enhanceBlock(div);
+  responseList.appendChild(div);
+  // por padrão não fala automaticamente o bloco do usuário
+}
     // ===== SYSTEM PROMPT UNIFIED =====
     function buildSystemPrompt(){
       const userName = localStorage.getItem(STORAGE.USER_NAME) || 'humano';
