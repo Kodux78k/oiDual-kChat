@@ -124,7 +124,7 @@
     }
 
     .response-container.collapsed{
-      bottom:29px;
+      bottom:24px;
       max-height:none;
       padding:6px 10px;
       background:radial-gradient(circle at 0 0,var(--kob-voice-bg-soft),rgba(0,0,0,.95));
@@ -149,7 +149,7 @@
     }
 
     #bootText{
-      font-weight:708;
+      font-weight:700;
       position:relative;
       letter-spacing:.03em;
       display:inline-block;
@@ -2014,164 +2014,14 @@ function speakLastBlock(){
 // Botão de voz: clique padrão fala últimos SPEAK_COUNT blocos
 // Shift+click fala tudo (Infinity)
 // -------------------
-// ------ Config para long-press / mobile ------
-const LONG_PRESS_MS = 650; // tempo para considerar "segurar" (ajusta se quiser)
-let _longPressTimer = null;
-let _didLongPress = false;
-
-// cria um indicador visual simples (opcional) — injeta no voiceBtn
-function ensureHoldIndicator(btn){
-  if (!btn) return;
-  if (btn.querySelector('.hold-indicator')) return;
-  const ind = document.createElement('span');
-  ind.className = 'hold-indicator';
-  ind.style.cssText = [
-    'position: absolute',
-    'inset: 0',
-    'pointer-events: none',
-    'border-radius: inherit',
-    'box-shadow: inset 0 0 0 0 rgba(0,0,0,0.12)',
-    'transition: box-shadow 120ms linear'
-  ].join(';');
-  btn.style.position = btn.style.position || 'relative';
-  btn.appendChild(ind);
-}
-
-// animar indicador (progress - 0..1)
-function setHoldIndicatorProgress(btn, progress){
-  const ind = btn && btn.querySelector && btn.querySelector('.hold-indicator');
-  if (!ind) return;
-  const pct = Math.max(0, Math.min(1, progress));
-  // usa box-shadow interno como barra — simples e compatível
-  const px = Math.round(pct * 24); // tamanho visual da barra
-  ind.style.boxShadow = `inset -${(24-px)}px 0 0 ${px}px rgba(0,0,0,0.14)`;
-}
-
-// cancela timer seguro
-function clearLongPressTimer(){
-  if (_longPressTimer){
-    clearInterval(_longPressTimer.intervalId);
-    clearTimeout(_longPressTimer.timeoutId);
-    _longPressTimer = null;
+voiceBtn.addEventListener('click', (ev) => {
+  const wantAll = ev.shiftKey === true;
+  if (wantAll){
+    speakRecentBlocks(Infinity);
+  } else {
+    speakRecentBlocks(SPEAK_COUNT);
   }
-  _didLongPress = false;
-}
-
-// substitui o listener antigo com clique/shift
-(function attachVoiceBtnHandlers(){
-  if (!voiceBtn) return;
-  ensureHoldIndicator(voiceBtn);
-
-  // --- desktop keyboard / mouse click handler (mantém Shift+click) ---
-  voiceBtn.addEventListener('click', (ev) => {
-    // se já foi considerado long-press, ignoramos o click subsequente
-    if (_didLongPress){
-      _didLongPress = false;
-      return;
-    }
-    const wantAll = ev.shiftKey === true;
-    if (wantAll){
-      speakRecentBlocks(Infinity);
-    } else {
-      speakRecentBlocks(SPEAK_COUNT);
-    }
-  });
-
-  // --- touch / long-press support (mobile) ---
-  // estratégia: touchstart -> começa timer com interval para feedback visual
-  // touchend / touchcancel -> se timer ainda ativo => cancelar e executar clique normal
-  voiceBtn.addEventListener('touchstart', (ev) => {
-    // evita múltiplos toques conflitantes
-    clearLongPressTimer();
-    _didLongPress = false;
-
-    const start = Date.now();
-    const btn = ev.currentTarget;
-
-    // intervalo para atualizar indicador de progresso (60fps ~ 16ms)
-    const intervalId = setInterval(() => {
-      const elapsed = Date.now() - start;
-      setHoldIndicatorProgress(btn, Math.min(1, elapsed / LONG_PRESS_MS));
-    }, 16);
-
-    // timeout que dispara o evento de "long-press"
-    const timeoutId = setTimeout(() => {
-      // marca que foi long-press para ignorar o click que vem depois
-      _didLongPress = true;
-      // visual: preencher indicador e reset after short time
-      setHoldIndicatorProgress(btn, 1);
-      // ação: falar tudo
-      speakRecentBlocks(Infinity);
-      // limpa timer
-      clearLongPressTimer();
-      // pequena animação de release
-      setTimeout(()=> setHoldIndicatorProgress(btn, 0), 220);
-    }, LONG_PRESS_MS);
-
-    _longPressTimer = { intervalId, timeoutId, startedAt: start };
-  }, { passive: true });
-
-  // on touchend / touchcancel limpamos e, se não foi long-press, executa clique "normal"
-  const onTouchEnd = (ev) => {
-    const btn = ev.currentTarget;
-    if (!_longPressTimer){
-      // possível que long-press já tenha disparado
-      setHoldIndicatorProgress(btn, 0);
-      return;
-    }
-    // calcula se o tempo expirou
-    const elapsed = Date.now() - (_longPressTimer.startedAt || 0);
-    clearLongPressTimer();
-    setHoldIndicatorProgress(btn, 0);
-
-    // se não alcançou LONG_PRESS_MS, consideramos um tap: disparar fala padrão
-    if (elapsed < LONG_PRESS_MS && !_didLongPress){
-      // Reproduz mesmo comportamento do click sem Shift
-      speakRecentBlocks(SPEAK_COUNT);
-    }
-    // caso _didLongPress seja true, o long-press já foi tratado
-  };
-
-  voiceBtn.addEventListener('touchend', onTouchEnd);
-  voiceBtn.addEventListener('touchcancel', onTouchEnd);
-
-  // --- suporte extra: tecla longa (teclado) — pressionar e segurar Space/Enter para falar tudo ---
-  voiceBtn.addEventListener('keydown', (ev) => {
-    // se o usuário segurar Enter/Space, consideramos long-press (desktop accessibility)
-    if (ev.key === ' ' || ev.key === 'Enter'){
-      ev.preventDefault();
-      // iniciamos similar ao touchstart
-      if (_longPressTimer) return;
-      const start = Date.now();
-      const btn = ev.currentTarget;
-      const intervalId = setInterval(() => {
-        const elapsed = Date.now() - start;
-        setHoldIndicatorProgress(btn, Math.min(1, elapsed / LONG_PRESS_MS));
-      }, 16);
-      const timeoutId = setTimeout(() => {
-        _didLongPress = true;
-        setHoldIndicatorProgress(btn, 1);
-        speakRecentBlocks(Infinity);
-        clearLongPressTimer();
-        setTimeout(()=> setHoldIndicatorProgress(btn, 0), 220);
-      }, LONG_PRESS_MS);
-      _longPressTimer = { intervalId, timeoutId, startedAt: start };
-    }
-  });
-
-  voiceBtn.addEventListener('keyup', (ev) => {
-    if (ev.key === ' ' || ev.key === 'Enter'){
-      const elapsed = _longPressTimer ? (Date.now() - _longPressTimer.startedAt) : 0;
-      clearLongPressTimer();
-      setHoldIndicatorProgress(voiceBtn, 0);
-      if (elapsed < LONG_PRESS_MS && !_didLongPress){
-        // tap via teclado = fala padrão
-        speakRecentBlocks(SPEAK_COUNT);
-      }
-    }
-  });
-
-})(); // fim attachVoiceBtnHandlers
+});
 
 // -------------------
 // onBlockClick: mantém tua lógica, mas usa speakBlock (comportamento existente)
