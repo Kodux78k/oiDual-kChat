@@ -705,6 +705,36 @@
         margin:0 auto;
       }
     }
+    
+    /* KDX Settings Panel */
+.kdx-settings-panel{
+  position:fixed;
+  top:56px;
+  left:16px;
+  width:320px;
+  max-width:calc(100vw - 32px);
+  background:var(--panel);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;
+  box-shadow:0 18px 40px rgba(0,0,0,.6);
+  z-index:50;
+  transform:translateY(-8px) scale(.98);
+  opacity:0;
+  transition:all .26s ease;
+  overflow:hidden;
+}
+.kdx-settings-panel.active{ display:block; transform:translateY(0) scale(1); opacity:1; }
+.kdx-sp-header{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.04);}
+.kdx-sp-body{ padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+.kdx-section label{ display:block; font-size:.78rem; opacity:.9; margin-bottom:6px; }
+.kdx-section { border-radius:8px; padding:8px; background:rgba(0,0,0,.25); }
+.kdx-sp-footer{ padding:8px 12px; border-top:1px solid rgba(255,255,255,.04); text-align:right; font-size:.72rem; opacity:.7; }
+.kdx-style-btn{ padding:6px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.06); background:transparent; color:var(--accent); cursor:pointer; margin-right:6px; }
+.kdx-style-btn:hover{ background:var(--accent); color:#050515; }
+.kdx-settings-panel .pill-btn{ padding:.5rem .7rem; border-radius:999px; font-size:.82rem; }
+body.minimal-style *{ transition:none !important; backdrop-filter:none !important; filter:none !important; }
+body.turbo-style { --kob-voice-theme-duration: 1600ms; filter:contrast(1.06) saturate(1.08); }
+
   </style>
 
   <!-- Patches KOBLLUX / Vozes / Tema / Fades (podem ser recortados como patch) -->
@@ -1454,7 +1484,103 @@
       iaStatus.textContent = 'Config salva com sucesso.';
       iaStatus.className = 'ia-status ok';
     }
+// ---------- Histórico e salvamento ----------
+function saveConversationNow(){
+  try{
+    const snap = {
+      ts: new Date().toISOString(),
+      conversation: conversation.slice(0,100) // limite razoável
+    };
+    const key = 'KDX_CONV_' + snap.ts;
+    localStorage.setItem(key, JSON.stringify(snap));
+    // também manter um index
+    const idx = JSON.parse(localStorage.getItem('KDX_CONV_INDEX') || '[]');
+    idx.unshift(key);
+    localStorage.setItem('KDX_CONV_INDEX', JSON.stringify(idx.slice(0,50)));
+    footerHint.textContent = 'Conversa salva.';
+    renderHistoryItems();
+    return true;
+  }catch(e){
+    console.error(e);
+    footerHint.textContent = 'Erro ao salvar conversa.';
+    return false;
+  }
+}
 
+function renderHistoryItems(){
+  const container = document.getElementById('kdxHistoryItems');
+  if (!container) return;
+  container.innerHTML = '';
+  const idx = JSON.parse(localStorage.getItem('KDX_CONV_INDEX') || '[]');
+  if (idx.length === 0){
+    container.innerHTML = '<div class="lv-callout lv-aside">Nenhuma conversa salva ainda.</div>';
+    return;
+  }
+  idx.forEach(k=>{
+    try{
+      const snap = JSON.parse(localStorage.getItem(k));
+      const el = document.createElement('div');
+      el.className = 'md-tabelista';
+      el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;">
+          <div><strong>${snap.ts}</strong><div style="opacity:.85;font-size:.82rem">${snap.conversation.length} itens</div></div>
+          <div style="display:flex;gap:6px">
+            <button class="lv-btn" data-load="${k}">Carregar</button>
+            <button class="lv-btn secondary" data-delete="${k}">Excluir</button>
+          </div>
+        </div>`;
+      container.appendChild(el);
+    }catch(e){}
+  });
+
+  container.querySelectorAll('[data-load]').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      const key = ev.currentTarget.dataset.load;
+      const snap = JSON.parse(localStorage.getItem(key));
+      if (snap){
+        conversation = snap.conversation.slice();
+        // re-render UI básico: limpa e injeta blocos simples (adapte se tiver função render própria)
+        responseList.innerHTML = '';
+        conversation.slice().reverse().forEach(item=>{
+          const d = document.createElement('div');
+          d.className = 'response-block middle';
+          d.innerHTML = `<div><strong>${item.role}</strong><div style="opacity:.85;margin-top:6px">${escapeHtml(item.content || item.content)}</div></div>`;
+          responseList.appendChild(d);
+        });
+        footerHint.textContent = 'Conversa carregada do histórico.';
+      }
+    });
+  });
+
+  container.querySelectorAll('[data-delete]').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      const key = ev.currentTarget.dataset.delete;
+      localStorage.removeItem(key);
+      const idx = JSON.parse(localStorage.getItem('KDX_CONV_INDEX') || '[]').filter(k=>k!==key);
+      localStorage.setItem('KDX_CONV_INDEX', JSON.stringify(idx));
+      renderHistoryItems();
+    });
+  });
+}
+
+// auto-save hook: salva quando conversa muda
+function maybeAutoSave(){
+  if (localStorage.getItem('KDX_AUTOSAVE') === '1'){
+    // debounce simples
+    clearTimeout(window.__kdx_auto_save_t_);
+    window.__kdx_auto_save_t_ = setTimeout(()=> {
+      saveConversationNow();
+    }, 1200);
+  }
+}
+
+// chamar maybeAutoSave sempre que push em conversation
+// recomenda inserir onde sua app empurra mensagens:
+// exemplo (no seu fluxo onde append na conversation, logo após push:)
+function pushConversation(item){
+  conversation.unshift(item);
+  // se tiver uma função de render, chamá-la; senão jogamos no responseList
+  maybeAutoSave();
+}
     function clearIaConfig(){
       localStorage.removeItem(STORAGE.OPENROUTER_KEY);
       localStorage.removeItem(STORAGE.OPENROUTER_MODEL);
@@ -1484,13 +1610,151 @@
         applyTheme(themeSelect.value || 'dark');
       });
     }
-    themeToggleBtn.addEventListener('click', ()=>{
-      const current = document.body.dataset.theme || 'dark';
-      const cycle = ['dark','vibe','medium'];
-      const idx = cycle.indexOf(current);
-      const next = cycle[(idx+1) % cycle.length];
-      applyTheme(next);
+    // ---------- substituir handler do themeToggle por abrir o painel de Config ----------
+const settingsPanelId = 'kdxSettingsPanel';
+
+function ensureSettingsPanel(){
+  if (document.getElementById(settingsPanelId)) return;
+  const panel = document.createElement('aside');
+  panel.id = settingsPanelId;
+  panel.className = 'kdx-settings-panel';
+  panel.innerHTML = `
+    <header class="kdx-sp-header">
+      <strong>Configurações · Dual.Infodose</strong>
+      <button id="kdxSpClose" aria-label="Fechar">✕</button>
+    </header>
+    <div class="kdx-sp-body">
+      <section class="kdx-section">
+        <label>Tema</label>
+        <select id="kdxThemeSelect">
+          <option value="dark">Dark</option>
+          <option value="medium">Medium Light</option>
+          <option value="vibe">Vibe</option>
+        </select>
+      </section>
+
+      <section class="kdx-section">
+        <label>Estilo de página</label>
+        <div>
+          <button class="kdx-style-btn" data-style="default">Padrão</button>
+          <button class="kdx-style-btn" data-style="minimal">Minimal</button>
+          <button class="kdx-style-btn" data-style="78k">78K Turbo</button>
+        </div>
+      </section>
+
+      <section class="kdx-section">
+        <label>Voz / Arquétipo ativo</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="kdxVoiceSelect"></select>
+          <button id="kdxVoiceApply" class="pill-btn">Aplicar</button>
+        </div>
+        <small id="kdxVoiceHint" style="opacity:.8;display:block;margin-top:6px;">A voz será selecionada automaticamente ao ler blocos por arquétipo; aqui você pode sobrescrever.</small>
+      </section>
+
+      <section class="kdx-section">
+        <label>Histórico & Salvamento</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="kdxOpenHistory" class="pill-btn secondary">Abrir Histórico</button>
+          <button id="kdxSaveConv" class="pill-btn">Salvar Agora</button>
+        </div>
+        <div style="margin-top:8px;">
+          <label><input type="checkbox" id="kdxAutoSave"/> Salvar conversas automaticamente</label>
+        </div>
+      </section>
+
+      <section id="kdxHistoryList" class="kdx-section" style="display:none;">
+        <label>Histórico de conversas</label>
+        <div id="kdxHistoryItems" style="max-height:220px;overflow:auto;"></div>
+      </section>
+    </div>
+    <footer class="kdx-sp-footer">
+      <small>Registro Vivo Δ7</small>
+    </footer>
+  `;
+  document.body.appendChild(panel);
+
+  // pequenos handlers
+  document.getElementById('kdxSpClose').addEventListener('click', ()=>panel.classList.remove('active'));
+  document.getElementById('kdxThemeSelect').addEventListener('change', (e)=> {
+    applyTheme(e.target.value === 'medium' ? 'medium' : e.target.value);
+    localStorage.setItem(STORAGE.THEME, e.target.value);
+  });
+  document.querySelectorAll('.kdx-style-btn').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      const style = ev.currentTarget.dataset.style;
+      document.body.dataset.pageStyle = style;
+      localStorage.setItem('PAGE_STYLE', style);
+      // ajusta classes visuais:
+      if (style === 'minimal'){
+        document.documentElement.style.setProperty('--kob-voice-theme-duration','250ms');
+        document.documentElement.style.setProperty('--shadow-soft','0 6px 12px rgba(0,0,0,.45)');
+        document.body.classList.add('minimal-style');
+        document.body.classList.remove('turbo-style');
+      } else if (style === '78k'){
+        document.body.classList.add('turbo-style');
+        document.body.classList.remove('minimal-style');
+      } else {
+        document.body.classList.remove('minimal-style','turbo-style');
+      }
     });
+  });
+
+  // voice select populate
+  const voiceSel = document.getElementById('kdxVoiceSelect');
+  const archKeys = Object.keys(window.KOBLLUX_VOICES || {}).sort();
+  // add option for manual/default
+  voiceSel.innerHTML = '<option value="">Automático (por arquétipo)</option>' + archKeys.map(k=>`<option value="${k}">${k}</option>`).join('');
+  document.getElementById('kdxVoiceApply').addEventListener('click', ()=>{
+    const v = voiceSel.value;
+    if (v){
+      // set manual override into voiceConfig.default
+      voiceConfig = voiceConfig || {};
+      voiceConfig.default = voiceConfig.default || {};
+      // store a voiceHint so speakBlock will pick it
+      voiceConfig.default.voiceHint = (window.KOBLLUX_VOICES && KOBLLUX_VOICES[v] && KOBLLUX_VOICES[v].voice) || v;
+      localStorage.setItem(STORAGE.VOICE_CONFIG, JSON.stringify(voiceConfig));
+      footerHint.textContent = `Voz sobrescrita: ${v}`;
+    } else {
+      footerHint.textContent = 'Voz automática por arquétipo.';
+      // remove manual default
+      if (voiceConfig && voiceConfig.default) { delete voiceConfig.default; localStorage.setItem(STORAGE.VOICE_CONFIG, JSON.stringify(voiceConfig)); }
+    }
+  });
+
+  // history handlers
+  document.getElementById('kdxOpenHistory').addEventListener('click', ()=>{
+    const hsec = document.getElementById('kdxHistoryList');
+    hsec.style.display = hsec.style.display === 'none' ? 'block' : 'none';
+    renderHistoryItems();
+  });
+
+  document.getElementById('kdxSaveConv').addEventListener('click', saveConversationNow);
+
+  const auto = localStorage.getItem('KDX_AUTOSAVE') === '1';
+  document.getElementById('kdxAutoSave').checked = auto;
+  document.getElementById('kdxAutoSave').addEventListener('change', (e)=>{
+    localStorage.setItem('KDX_AUTOSAVE', e.target.checked ? '1' : '0');
+  });
+}
+
+function openSettingsPanel(){
+  ensureSettingsPanel();
+  const panel = document.getElementById('kdxSettingsPanel');
+  if (!panel) return;
+  panel.classList.add('active');
+  // prefill theme select
+  const sel = document.getElementById('kdxThemeSelect');
+  if (sel) sel.value = (localStorage.getItem(STORAGE.THEME) || 'dark');
+  // prefill page style
+  const style = localStorage.getItem('PAGE_STYLE') || 'default';
+  document.body.dataset.pageStyle = style;
+}
+
+// botão #themeToggle agora abre painel de configs
+themeToggleBtn.addEventListener('click', (ev)=>{
+  ev.preventDefault();
+  openSettingsPanel();
+});
 
     function restoreNames(){
       const user = localStorage.getItem(STORAGE.USER_NAME) || '';
